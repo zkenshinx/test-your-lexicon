@@ -1,2 +1,0 @@
-ALTER TABLE "dummy"
-    ADD COLUMN age BIGSERIAL;

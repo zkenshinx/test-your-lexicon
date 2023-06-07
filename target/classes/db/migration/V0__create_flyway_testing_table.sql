@@ -1,5 +1,0 @@
-CREATE TABLE "dummy"
-(
-    id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL
-)
