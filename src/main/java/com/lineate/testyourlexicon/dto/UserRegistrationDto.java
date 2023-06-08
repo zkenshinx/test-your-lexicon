@@ -11,17 +11,17 @@ import org.hibernate.validator.constraints.Length;
 public class UserRegistrationDto {
 
   @NotEmpty
-  @JsonProperty("first_name")
   @Pattern(regexp = "[A-Za-z]+", message = "First name must be only english characters")
+  @JsonProperty("first_name")
   private String firstName;
 
   @NotEmpty
-  @JsonProperty("last_name")
   @Pattern(regexp = "[A-Za-z]+", message = "Last name must be only english characters")
+  @JsonProperty("last_name")
   private String lastName;
 
   @NotEmpty
-  @Email
+  @Email(message = "Email not valid")
   private String email;
 
   @NotEmpty
@@ -29,5 +29,6 @@ public class UserRegistrationDto {
   @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$", message = "Password must contain both letters and numbers")
   private String password;
   @NotEmpty
+  @JsonProperty("confirmation_password")
   private String confirmationPassword;
 }
