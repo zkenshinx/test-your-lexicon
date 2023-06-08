@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class UserRegistrationResult {
+public class UserRegistrationResponse {
 
   private boolean successfulRegistration;
   private String message;
