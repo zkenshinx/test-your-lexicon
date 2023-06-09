@@ -6,6 +6,8 @@ import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.services.UserRegistrationResponse;
 import com.lineate.testyourlexicon.services.UserService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,14 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+  private void logUserRegistration(UserRegistrationDto userRegistrationDto) {
+    logger.info("Registered user: {first name: {}, last name: {}, email: {}}",
+      userRegistrationDto.getFirstName().toLowerCase(),
+      userRegistrationDto.getLastName().toLowerCase(),
+      userRegistrationDto.getEmail());
+  }
 
   public UserRegistrationResponse createUser(UserRegistrationDto userRegistrationDto) {
     if (userRepository.findUserByEmail(userRegistrationDto.getEmail()).isPresent()) {
@@ -24,13 +34,15 @@ public class UserServiceImpl implements UserService {
     }
 
     User registeredUser = new User();
-    registeredUser.setFirstName(userRegistrationDto.getFirstName());
-    registeredUser.setLastName(userRegistrationDto.getLastName());
+    registeredUser.setFirstName(userRegistrationDto.getFirstName().toLowerCase());
+    registeredUser.setLastName(userRegistrationDto.getLastName().toLowerCase());
     registeredUser.setEmail(userRegistrationDto.getEmail());
     String hashedPassword = passwordEncoder.encode(userRegistrationDto.getPassword());
     registeredUser.setHashedPassword(hashedPassword);
 
     userRepository.save(registeredUser);
+
+    logUserRegistration(userRegistrationDto);
 
     return new UserRegistrationResponse(true, "Successful registration");
   }
