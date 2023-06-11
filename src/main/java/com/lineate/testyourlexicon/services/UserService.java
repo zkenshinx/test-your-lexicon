@@ -1,5 +1,6 @@
 package com.lineate.testyourlexicon.services;
 
+import com.lineate.testyourlexicon.dto.UserDto;
 import com.lineate.testyourlexicon.dto.UserRegistrationDto;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.ErrorResponse;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -46,4 +49,9 @@ public class UserService {
     return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.UserToUserDto(registeredUser));
   }
 
+  public List<UserDto> getAll() {
+    return userRepository.findAll().stream()
+      .map(UserMapper::UserToUserDto)
+      .collect(Collectors.toList());
+  }
 }

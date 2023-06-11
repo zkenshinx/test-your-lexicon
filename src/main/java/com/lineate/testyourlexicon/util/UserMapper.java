@@ -23,7 +23,7 @@ public class UserMapper {
     return result;
   }
 
-  public UserDto UserToUserDto(User user) {
+  public static UserDto UserToUserDto(User user) {
     return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail());
   }
 }

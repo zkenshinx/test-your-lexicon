@@ -17,6 +17,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(authz -> authz
+        .requestMatchers("/users/all").hasAnyAuthority("ADMIN")
         .requestMatchers("/health").authenticated()
         .anyRequest().permitAll())
       .formLogin(withDefaults())
