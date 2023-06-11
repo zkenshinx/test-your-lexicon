@@ -19,7 +19,7 @@ public class SecurityConfig {
       .authorizeHttpRequests(authz -> authz
         .requestMatchers("/health").authenticated()
         .anyRequest().permitAll())
-      .httpBasic(withDefaults())
+      .formLogin(withDefaults())
       .build();
   }
 
