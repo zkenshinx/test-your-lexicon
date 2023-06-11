@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 public class UserRegistrationDto {
 
   @NotEmpty(message = "First name must not be empty")
-  @Pattern(regexp = "[A-Za-z]+", message = "First name must consist ofe only english characters")
+  @Pattern(regexp = "[A-Za-z]+", message = "First name must consist of only english characters")
   @JsonProperty("first_name")
   private String firstName;
 
