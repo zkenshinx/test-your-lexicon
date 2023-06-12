@@ -35,11 +35,15 @@ public class UserService {
 
   public ResponseEntity<?> createUser(UserRegistrationDto userRegistrationDto) throws ValidationException {
     if (!userRegistrationDto.getPassword().equals(userRegistrationDto.getConfirmationPassword())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("PASSWORD_MISMATCH");
+      throw new IllegalArgumentException("Passwords do not match");
     }
 
     User registeredUser = userMapper.UserRegistrationDtoToUser(userRegistrationDto);
-    userRepository.save(registeredUser);
+    try {
+      userRepository.save(registeredUser);
+    } catch (DataAccessException ex) {
+      throw new IllegalArgumentException("Email is already in use!");
+    }
 
     logUserRegistration(userRegistrationDto);
 
