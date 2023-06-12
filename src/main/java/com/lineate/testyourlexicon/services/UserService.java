@@ -6,17 +6,10 @@ import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.UserMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.saxon.type.ValidationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.ErrorResponse;
-
-import java.sql.SQLException;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +26,7 @@ public class UserService {
       userRegistrationDto.getEmail());
   }
 
-  public ResponseEntity<?> createUser(UserRegistrationDto userRegistrationDto) throws ValidationException {
+  public ResponseEntity<?> createUser(UserRegistrationDto userRegistrationDto) {
     if (!userRegistrationDto.getPassword().equals(userRegistrationDto.getConfirmationPassword())) {
       throw new IllegalArgumentException("Passwords do not match");
     }
