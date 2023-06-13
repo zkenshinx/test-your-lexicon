@@ -5,7 +5,7 @@ Each step consists of selecting a correct translation for a word from some given
 of suggested words.
 
 ## Tech Stack
-* Spring Framework, Boot, Web, Actuator
+* Spring Framework, Boot, Web, Security, Actuator
 * Lombok
 * Checkstyle
 * Flyway
