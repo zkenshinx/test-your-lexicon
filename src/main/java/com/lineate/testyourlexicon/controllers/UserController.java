@@ -19,7 +19,7 @@ public class UserController {
 
   private final UserService userService;
 
-  @PostMapping("/register")
+  @PostMapping
   public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegistrationDto userRegistrationDto) throws ValidationException {
     return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRegistrationDto));
   }
