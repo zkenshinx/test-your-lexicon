@@ -28,6 +28,10 @@ Run app:
 ```
 mvn spring-boot:run
 ```
+Run migration:
+```
+mvn clean flyway:migrate
+```
 Run checkstyle:
 ```
 mvn checkstyle:checkstyle
