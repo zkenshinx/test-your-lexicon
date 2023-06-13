@@ -1,5 +1,6 @@
 package com.lineate.testyourlexicon.services;
 
+import com.lineate.testyourlexicon.dto.UserDto;
 import com.lineate.testyourlexicon.dto.UserRegistrationDto;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
@@ -26,7 +27,7 @@ public class UserService {
       userRegistrationDto.getEmail());
   }
 
-  public ResponseEntity<?> createUser(UserRegistrationDto userRegistrationDto) {
+  public UserDto createUser(UserRegistrationDto userRegistrationDto) {
     if (!userRegistrationDto.getPassword().equals(userRegistrationDto.getConfirmationPassword())) {
       throw new IllegalArgumentException("Passwords do not match");
     }
@@ -40,7 +41,7 @@ public class UserService {
 
     logUserRegistration(userRegistrationDto);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.UserToUserDto(registeredUser));
+    return userMapper.UserToUserDto(registeredUser);
   }
 
 }

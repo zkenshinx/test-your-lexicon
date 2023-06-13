@@ -5,6 +5,7 @@ import com.lineate.testyourlexicon.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import net.sf.saxon.type.ValidationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class UserController {
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegistrationDto userRegistrationDto) throws ValidationException {
-    return userService.createUser(userRegistrationDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRegistrationDto));
   }
 
 }
