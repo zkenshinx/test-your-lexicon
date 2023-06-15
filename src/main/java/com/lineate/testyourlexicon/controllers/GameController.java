@@ -21,12 +21,12 @@ public class GameController {
 
   private final GameService gameService;
 
-  @GetMapping("supported-languages")
+  @GetMapping("/supported-languages")
   public SupportedLanguagesDto supportedLanguages() {
     return new SupportedLanguagesDto(Arrays.asList("English", "Georgian"));
   }
 
-  @PostMapping("configure")
+  @PostMapping("/configure")
   public GameConfigurationDto configure(@RequestBody @Valid GameConfigurationDto gameConfigurationDto) {
     return gameService.configure(gameConfigurationDto);
   }

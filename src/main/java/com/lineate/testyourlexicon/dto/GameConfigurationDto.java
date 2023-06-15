@@ -19,10 +19,10 @@ public class GameConfigurationDto {
   private String translatedTo;
 
   @JsonProperty("number_of_steps")
-  @Range(min = 1, max = 25)
+  @Range(min = 1, max = 25, message = "number of steps must be between 1 and 25")
   private Integer numberOfSteps;
 
   @JsonProperty("step_time")
-  @Range(min = 5, max = 60)
+  @Range(min = 5, max = 60, message = "number of seconds must be between 5 and 60")
   private Integer stepTimeInSeconds;
 }
