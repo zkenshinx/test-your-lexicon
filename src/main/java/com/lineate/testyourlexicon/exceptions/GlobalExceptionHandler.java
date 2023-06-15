@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(new ExceptionResponse(error));
   }
 
-  @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+  @ExceptionHandler({IllegalArgumentException.class, UserNotAuthenticatedException.class})
+  public ResponseEntity<?> handleIllegalArgumentException(Exception ex) {
     return ResponseEntity.badRequest().body(new ExceptionResponse(ex.getMessage()));
   }
 
