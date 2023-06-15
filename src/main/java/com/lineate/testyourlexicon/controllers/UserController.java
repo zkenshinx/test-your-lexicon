@@ -23,7 +23,7 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRegistrationDto));
   }
 
-  @GetMapping("/all")
+  @GetMapping
   public List<UserDto> allUsers() {
     return userService.getAll();
   }
