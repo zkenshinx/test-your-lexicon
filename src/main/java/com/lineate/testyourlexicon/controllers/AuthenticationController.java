@@ -18,7 +18,6 @@ public class AuthenticationController {
   @ResponseStatus(HttpStatus.OK)
   public SingleMessageDto login(@RequestBody @Valid AuthenticationDto authenticationDto,
                               HttpServletRequest request) {
-    System.out.println("WHAT");
     try {
       request.login(authenticationDto.getEmail(), authenticationDto.getPassword());
     } catch (ServletException e) {
