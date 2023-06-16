@@ -8,9 +8,9 @@ import com.lineate.testyourlexicon.util.UserMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -44,4 +44,9 @@ public class UserService {
     return userMapper.UserToUserDto(registeredUser);
   }
 
+  public List<UserDto> getAll() {
+    return userRepository.findAll().stream()
+      .map(UserMapper::UserToUserDto)
+      .collect(Collectors.toList());
+  }
 }
