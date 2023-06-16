@@ -31,4 +31,9 @@ public class GameController {
     return gameService.configure(gameConfigurationDto);
   }
 
+  @GetMapping("/configuration")
+  public GameConfigurationDto configuration() {
+    return gameService.currentUserConfiguration();
+  }
+
 }

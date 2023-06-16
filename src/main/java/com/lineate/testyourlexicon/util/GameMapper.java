@@ -5,12 +5,10 @@ import com.lineate.testyourlexicon.entities.GameConfiguration;
 
 public class GameMapper {
 
-  private static final int DEFAULT_STEP_COUNT = 10;
-  private static final int DEFAULT_STEP_TIME = 20;
 
   public static GameConfiguration gameConfigurationDtoToGameConfiguration(GameConfigurationDto gameConfigurationDto) {
-    int numberOfSteps = DEFAULT_STEP_COUNT;
-    int stepTime = DEFAULT_STEP_TIME;
+    int numberOfSteps = GameUtil.DEFAULT_STEP_COUNT;
+    int stepTime = GameUtil.DEFAULT_STEP_TIME;
     if (gameConfigurationDto.getNumberOfSteps() != null) {
       numberOfSteps = gameConfigurationDto.getNumberOfSteps();
     }

@@ -6,6 +6,7 @@ import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.UserNotAuthenticatedException;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameMapper;
+import com.lineate.testyourlexicon.util.GameUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,14 @@ public class GameService {
   private final UserRepository userRepository;
   private final AuthenticationService authenticationService;
 
-  public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto) {
+  private void checkAuthenticated() {
     if (!authenticationService.isAuthenticated()) {
       throw new UserNotAuthenticatedException("User not authenticated");
     }
+  }
+
+  public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto) {
+    checkAuthenticated();
     GameConfiguration gameConfiguration =
       GameMapper.gameConfigurationDtoToGameConfiguration(gameConfigurationDto);
 
@@ -29,5 +34,11 @@ public class GameService {
     userRepository.save(u);
 
     return GameMapper.gameConfigurationToGameConfigurationDto(gameConfiguration);
+  }
+
+  public GameConfigurationDto currentUserConfiguration() {
+    checkAuthenticated();
+    GameConfiguration gc = authenticationService.getAuthenticatedUser().getGameConfiguration();
+    return GameMapper.gameConfigurationToGameConfigurationDto(gc);
   }
 }

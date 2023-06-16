@@ -4,6 +4,7 @@ import com.lineate.testyourlexicon.security.LogoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +19,8 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(authz -> authz
-        .requestMatchers("/users").hasAnyRole("ADMIN")
+        .requestMatchers(HttpMethod.GET,
+          "/users").hasAnyRole("ADMIN")
         .requestMatchers("/health").authenticated()
         .anyRequest().permitAll())
       .logout(logout -> logout
