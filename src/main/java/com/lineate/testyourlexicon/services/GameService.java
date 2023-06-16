@@ -23,6 +23,7 @@ public class GameService {
       GameMapper.gameConfigurationDtoToGameConfiguration(gameConfigurationDto);
 
     User u = authenticationService.getAuthenticatedUser();
+    gameConfiguration.setId(u.getId());
     u.setGameConfiguration(gameConfiguration);
     gameConfiguration.setUser(u);
     userRepository.save(u);
