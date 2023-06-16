@@ -7,19 +7,11 @@ public class GameMapper {
 
 
   public static GameConfiguration gameConfigurationDtoToGameConfiguration(GameConfigurationDto gameConfigurationDto) {
-    int numberOfSteps = GameUtil.DEFAULT_STEP_COUNT;
-    int stepTime = GameUtil.DEFAULT_STEP_TIME;
-    if (gameConfigurationDto.getNumberOfSteps() != null) {
-      numberOfSteps = gameConfigurationDto.getNumberOfSteps();
-    }
-    if (gameConfigurationDto.getStepTimeInSeconds() != null) {
-      stepTime = gameConfigurationDto.getStepTimeInSeconds();
-    }
     return GameConfiguration.builder()
       .translateFrom(gameConfigurationDto.getTranslatedFrom())
       .translateTo(gameConfigurationDto.getTranslatedTo())
-      .numberOfSteps(numberOfSteps)
-      .stepTimeInSeconds(stepTime)
+      .numberOfSteps(gameConfigurationDto.getNumberOfSteps())
+      .stepTimeInSeconds(gameConfigurationDto.getStepTimeInSeconds())
       .build();
   }
 
