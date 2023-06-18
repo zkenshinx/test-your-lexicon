@@ -11,10 +11,10 @@ import org.hibernate.validator.constraints.Range;
 public class GameConfigurationDto {
 
   @JsonProperty("translate_from")
-  @NotEmpty(message = "translated_from field must not be empty")
+  @NotEmpty(message = "translate_from field must not be empty")
   private String translateFrom;
   @JsonProperty("translate_to")
-  @NotEmpty(message = "translated_to field must not be empty")
+  @NotEmpty(message = "translate_to field must not be empty")
   private String translateTo;
 
   @JsonProperty("number_of_steps")
