@@ -27,7 +27,7 @@ public class GameController {
 
   @GetMapping("/supported-languages")
   public SupportedLanguagesDto supportedLanguages() {
-    return new SupportedLanguagesDto(Arrays.asList("English", "Georgian"));
+    return gameService.supportedLanguages();
   }
 
   @PutMapping("/configuration")

@@ -1,6 +1,7 @@
 package com.lineate.testyourlexicon.services;
 
 import com.lineate.testyourlexicon.dto.GameConfigurationDto;
+import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.UserNotAuthenticatedException;
@@ -8,6 +9,8 @@ import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +32,9 @@ public class GameService {
   public GameConfigurationDto userConfiguration(User user) {
     GameConfiguration gc = user.getGameConfiguration();
     return GameMapper.gameConfigurationToGameConfigurationDto(gc);
+  }
+
+  public SupportedLanguagesDto supportedLanguages() {
+    return new SupportedLanguagesDto(Arrays.asList("English", "Georgian"));
   }
 }
