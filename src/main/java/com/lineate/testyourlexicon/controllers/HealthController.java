@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class HealthController {
 
-    private final DataSource dataSource;
+  private final DataSource dataSource;
 
-    @GetMapping("/health")
-    public Health health() {
-        var dataSourceHealthIndicator =
-                new DataSourceHealthIndicator(dataSource);
-        return dataSourceHealthIndicator.health();
-    }
+  @GetMapping("/health")
+  public Health health() {
+    var dataSourceHealthIndicator =
+        new DataSourceHealthIndicator(dataSource);
+    return dataSourceHealthIndicator.health();
+  }
 }

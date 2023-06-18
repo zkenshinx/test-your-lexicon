@@ -13,7 +13,7 @@ public class UserMapper {
 
   private final PasswordEncoder passwordEncoder;
 
-  public User UserRegistrationDtoToUser(UserRegistrationDto userRegistrationDto) {
+  public User userRegistrationDtoToUser(UserRegistrationDto userRegistrationDto) {
     User result = new User();
     result.setFirstName(userRegistrationDto.getFirstName().toLowerCase());
     result.setLastName(userRegistrationDto.getLastName().toLowerCase());
@@ -23,7 +23,7 @@ public class UserMapper {
     return result;
   }
 
-  public static UserDto UserToUserDto(User user) {
+  public static UserDto userToUserDto(User user) {
     return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail());
   }
 }
