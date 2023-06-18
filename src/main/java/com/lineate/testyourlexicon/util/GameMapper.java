@@ -8,8 +8,8 @@ public class GameMapper {
 
   public static GameConfiguration gameConfigurationDtoToGameConfiguration(GameConfigurationDto gameConfigurationDto) {
     return GameConfiguration.builder()
-      .translateFrom(gameConfigurationDto.getTranslatedFrom())
-      .translateTo(gameConfigurationDto.getTranslatedTo())
+      .translateFrom(gameConfigurationDto.getTranslateFrom())
+      .translateTo(gameConfigurationDto.getTranslateTo())
       .numberOfSteps(gameConfigurationDto.getNumberOfSteps())
       .stepTimeInSeconds(gameConfigurationDto.getStepTimeInSeconds())
       .build();
@@ -17,8 +17,8 @@ public class GameMapper {
 
   public static GameConfigurationDto gameConfigurationToGameConfigurationDto(GameConfiguration gameConfiguration) {
     return GameConfigurationDto.builder()
-      .translatedTo(gameConfiguration.getTranslateTo())
-      .translatedFrom(gameConfiguration.getTranslateFrom())
+      .translateTo(gameConfiguration.getTranslateTo())
+      .translateFrom(gameConfiguration.getTranslateFrom())
       .numberOfSteps(gameConfiguration.getNumberOfSteps())
       .stepTimeInSeconds(gameConfiguration.getStepTimeInSeconds())
       .build();

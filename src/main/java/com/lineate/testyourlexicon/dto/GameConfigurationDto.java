@@ -1,7 +1,6 @@
 package com.lineate.testyourlexicon.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +10,12 @@ import org.hibernate.validator.constraints.Range;
 @Builder
 public class GameConfigurationDto {
 
-  @JsonProperty("translated_from")
+  @JsonProperty("translate_from")
   @NotEmpty(message = "translated_from field must not be empty")
-  private String translatedFrom;
-  @JsonProperty("translated_to")
+  private String translateFrom;
+  @JsonProperty("translate_to")
   @NotEmpty(message = "translated_to field must not be empty")
-  private String translatedTo;
+  private String translateTo;
 
   @JsonProperty("number_of_steps")
   @Range(min = 1, max = 25, message = "number of steps must be between 1 and 25")
