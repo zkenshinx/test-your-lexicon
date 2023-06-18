@@ -22,9 +22,9 @@ public class GameConfiguration {
   @Column(name = "translate_to")
   private String translateTo;
   @Column(name = "number_of_steps")
-  private int numberOfSteps;
+  private Integer numberOfSteps;
   @Column(name = "step_time")
-  private int stepTimeInSeconds;
+  private Integer stepTimeInSeconds;
 
   @OneToOne
   @MapsId

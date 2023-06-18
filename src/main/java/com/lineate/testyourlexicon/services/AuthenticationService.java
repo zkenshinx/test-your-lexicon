@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -24,11 +26,8 @@ public class AuthenticationService {
     return SecurityContextHolder.getContext().getAuthentication().getName();
   }
 
-  public User getAuthenticatedUser() {
-    if (!isAuthenticated()) {
-      throw new UserNotAuthenticatedException("User not authenticated");
-    }
+  public Optional<User> getAuthenticatedUser() {
     String email = this.getAuthenticatedUserEmail();
-    return userRepository.findUserByEmail(email).get();
+    return userRepository.findUserByEmail(email);
   }
 }

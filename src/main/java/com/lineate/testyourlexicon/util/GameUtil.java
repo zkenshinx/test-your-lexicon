@@ -1,7 +1,9 @@
 package com.lineate.testyourlexicon.util;
 
 import com.lineate.testyourlexicon.entities.GameConfiguration;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GameUtil {
 
   public static final int DEFAULT_STEP_COUNT = 10;

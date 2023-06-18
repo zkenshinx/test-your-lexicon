@@ -46,7 +46,7 @@ public class UserService {
 
     logUserRegistration(userRegistrationDto);
 
-    return userMapper.UserToUserDto(registeredUser);
+    return UserMapper.UserToUserDto(registeredUser);
   }
 
   public List<UserDto> getAll() {
