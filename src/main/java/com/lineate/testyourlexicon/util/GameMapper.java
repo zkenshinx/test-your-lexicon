@@ -12,6 +12,7 @@ public class GameMapper {
       .translateTo(gameConfigurationDto.getTranslateTo())
       .numberOfSteps(gameConfigurationDto.getNumberOfSteps())
       .stepTimeInSeconds(gameConfigurationDto.getStepTimeInSeconds())
+      .answerCount(gameConfigurationDto.getAnswerCount())
       .build();
   }
 
@@ -21,6 +22,7 @@ public class GameMapper {
       .translateFrom(gameConfiguration.getTranslateFrom())
       .numberOfSteps(gameConfiguration.getNumberOfSteps())
       .stepTimeInSeconds(gameConfiguration.getStepTimeInSeconds())
+      .answerCount(gameConfiguration.getAnswerCount())
       .build();
   }
 

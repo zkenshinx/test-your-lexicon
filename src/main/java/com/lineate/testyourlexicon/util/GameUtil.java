@@ -8,6 +8,7 @@ public class GameUtil {
 
   public static final int DEFAULT_STEP_COUNT = 10;
   public static final int DEFAULT_STEP_TIME = 20;
+  public static final int DEFAULT_ANSWER_COUNT = 4;
 
   public static final String DEFAULT_TRANSLATE_FROM_LANGUAGE = "English";
   public static final String DEFAULT_TRANSLATE_TO_LANGUAGE = "Georgian";
@@ -18,6 +19,7 @@ public class GameUtil {
       .translateTo(DEFAULT_TRANSLATE_TO_LANGUAGE)
       .stepTimeInSeconds(DEFAULT_STEP_TIME)
       .numberOfSteps(DEFAULT_STEP_COUNT)
+      .answerCount(DEFAULT_ANSWER_COUNT)
       .build();
   }
 

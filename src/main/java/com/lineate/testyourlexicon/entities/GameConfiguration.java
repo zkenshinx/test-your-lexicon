@@ -25,7 +25,8 @@ public class GameConfiguration {
   private Integer numberOfSteps;
   @Column(name = "step_time")
   private Integer stepTimeInSeconds;
-
+  @Column(name = "answer_count")
+  private Integer answerCount;
   @OneToOne
   @MapsId
   @JoinColumn(name = "user_id")

@@ -30,8 +30,7 @@ public class GameService {
   }
 
   public GameConfigurationDto userConfiguration(User user) {
-    GameConfiguration gc = user.getGameConfiguration();
-    return GameMapper.gameConfigurationToGameConfigurationDto(gc);
+    return GameMapper.gameConfigurationToGameConfigurationDto(user.getGameConfiguration());
   }
 
   public SupportedLanguagesDto supportedLanguages() {

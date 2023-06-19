@@ -31,13 +31,14 @@ public class GameServiceTests {
   }
 
   @Test
-  public void WhenChangingUserGameConfiguration_GetChangedGameConfiguration() {
+  public void whenChangingUserGameConfiguration_GetChangedGameConfiguration() {
     GameConfigurationDto customGameConfigurationDto = GameConfigurationDto
         .builder()
         .translateFrom("Japanese")
         .translateTo("German")
         .numberOfSteps(16)
         .stepTimeInSeconds(15)
+        .answerCount(10)
         .build();
     User user = getExampleUserWithDefaultGameConfiguration();
     when(userRepository.save(user)).thenReturn(user);
@@ -52,6 +53,8 @@ public class GameServiceTests {
       .isEqualTo(16);
     assertThat(gameConfigurationDto.getStepTimeInSeconds())
       .isEqualTo(15);
+    assertThat(gameConfigurationDto.getAnswerCount())
+      .isEqualTo(10);
 
 
     // Check whether users game configuration has been changed
@@ -64,6 +67,8 @@ public class GameServiceTests {
       .isEqualTo(16);
     assertThat(userGameConfiguration.getStepTimeInSeconds())
       .isEqualTo(15);
+    assertThat(userGameConfiguration.getAnswerCount())
+      .isEqualTo(10);
   }
 
   @Test
@@ -92,6 +97,8 @@ public class GameServiceTests {
       .isEqualTo(GameUtil.DEFAULT_STEP_COUNT);
     assertThat(gameConfigurationDto.getStepTimeInSeconds())
       .isEqualTo(GameUtil.DEFAULT_STEP_TIME);
+    assertThat(gameConfigurationDto.getAnswerCount())
+      .isEqualTo(GameUtil.DEFAULT_ANSWER_COUNT);
   }
 
   private User getExampleUserWithDefaultGameConfiguration() {
