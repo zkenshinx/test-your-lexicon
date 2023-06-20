@@ -15,7 +15,8 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(authz -> authz
-        .requestMatchers(HttpMethod.GET, "/users").hasAnyRole("ADMIN")
+        .requestMatchers(HttpMethod.GET,
+          "/users").hasAnyRole("ADMIN")
         .requestMatchers("/health").authenticated()
         .anyRequest().permitAll())
       .logout(logout -> logout
