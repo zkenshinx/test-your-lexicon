@@ -26,7 +26,8 @@ public class UserRegistrationDto {
 
   @NotEmpty(message = "Password must not be empty")
   @Length(min = 8, message = "Password length must be minimum 8")
-  @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$", message = "Password must contain both letters and numbers")
+  @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$",
+           message = "Password must contain both letters and numbers")
   private String password;
   @NotEmpty(message = "Confirmation password must not be empty")
   @JsonProperty("confirmation_password")

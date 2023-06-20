@@ -1,6 +1,7 @@
 package com.lineate.testyourlexicon.exceptions;
 
-import org.springframework.http.HttpStatusCode;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -8,9 +9,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,8 +19,8 @@ public class GlobalExceptionHandler {
     BindingResult bindingResult = ex.getBindingResult();
     List<FieldError> fieldErrors = bindingResult.getFieldErrors();
     String error = fieldErrors.stream()
-      .map(f -> f.getDefaultMessage()).collect(Collectors.toList())
-      .get(0);
+        .map(f -> f.getDefaultMessage()).collect(Collectors.toList())
+        .get(0);
     return ResponseEntity.badRequest().body(new ExceptionResponse(error));
   }
 

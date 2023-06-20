@@ -7,12 +7,12 @@ import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameUtil;
 import com.lineate.testyourlexicon.util.UserMapper;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -24,9 +24,9 @@ public class UserService {
 
   private void logUserRegistration(UserRegistrationDto userRegistrationDto) {
     log.info("Registered user: {first name: {}, last name: {}, email: {}}",
-      userRegistrationDto.getFirstName().toLowerCase(),
-      userRegistrationDto.getLastName().toLowerCase(),
-      userRegistrationDto.getEmail());
+        userRegistrationDto.getFirstName().toLowerCase(),
+        userRegistrationDto.getLastName().toLowerCase(),
+        userRegistrationDto.getEmail());
   }
 
   public UserDto createUser(UserRegistrationDto userRegistrationDto) {
@@ -38,6 +38,7 @@ public class UserService {
     GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
     defaultGameConfiguration.setUser(registeredUser);
     registeredUser.setGameConfiguration(defaultGameConfiguration);
+
     try {
       userRepository.save(registeredUser);
     } catch (DataAccessException ex) {
@@ -51,7 +52,7 @@ public class UserService {
 
   public List<UserDto> getAll() {
     return userRepository.findAll().stream()
-      .map(UserMapper::UserToUserDto)
+      .map(UserMapper::userToUserDto)
       .collect(Collectors.toList());
   }
 }
