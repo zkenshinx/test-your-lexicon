@@ -32,6 +32,6 @@ public class GameService {
   }
 
   public SupportedLanguagesDto supportedLanguages() {
-    return new SupportedLanguagesDto(Arrays.asList("English", "Georgian"));
+    return new SupportedLanguagesDto(Arrays.asList("English", "Georgian", "Russian", "German"));
   }
 }
