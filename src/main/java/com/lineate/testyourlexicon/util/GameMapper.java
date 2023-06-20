@@ -9,8 +9,8 @@ public class GameMapper {
   public static GameConfiguration gameConfigurationDtoToGameConfiguration(
       GameConfigurationDto gameConfigurationDto) {
     return GameConfiguration.builder()
-      .translateFrom(gameConfigurationDto.getTranslateFrom())
-      .translateTo(gameConfigurationDto.getTranslateTo())
+      .translateFrom(gameConfigurationDto.getTranslateFrom().toLowerCase())
+      .translateTo(gameConfigurationDto.getTranslateTo().toLowerCase())
       .numberOfSteps(gameConfigurationDto.getNumberOfSteps())
       .stepTimeInSeconds(gameConfigurationDto.getStepTimeInSeconds())
       .answerCount(gameConfigurationDto.getAnswerCount())
