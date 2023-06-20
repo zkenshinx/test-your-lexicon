@@ -34,7 +34,7 @@ public class UserService {
       throw new IllegalArgumentException("Passwords do not match");
     }
 
-    User registeredUser = userMapper.UserRegistrationDtoToUser(userRegistrationDto);
+    User registeredUser = userMapper.userRegistrationDtoToUser(userRegistrationDto);
     GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
     defaultGameConfiguration.setUser(registeredUser);
     registeredUser.setGameConfiguration(defaultGameConfiguration);
@@ -47,7 +47,7 @@ public class UserService {
 
     logUserRegistration(userRegistrationDto);
 
-    return UserMapper.UserToUserDto(registeredUser);
+    return UserMapper.userToUserDto(registeredUser);
   }
 
   public List<UserDto> getAll() {
