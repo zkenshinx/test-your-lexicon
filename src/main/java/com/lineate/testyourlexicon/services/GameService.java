@@ -1,6 +1,7 @@
 package com.lineate.testyourlexicon.services;
 
 import com.lineate.testyourlexicon.dto.GameConfigurationDto;
+import com.lineate.testyourlexicon.dto.GameInitializedDto;
 import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
@@ -39,5 +40,9 @@ public class GameService {
 
   public SupportedLanguagesDto supportedLanguages() {
     return new SupportedLanguagesDto(translationService.supportedLanguages());
+  }
+
+  public GameInitializedDto initGameForUser(User authenticatedUser) {
+    return new GameInitializedDto(100L);
   }
 }
