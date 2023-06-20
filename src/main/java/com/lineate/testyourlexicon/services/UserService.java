@@ -2,8 +2,10 @@ package com.lineate.testyourlexicon.services;
 
 import com.lineate.testyourlexicon.dto.UserDto;
 import com.lineate.testyourlexicon.dto.UserRegistrationDto;
+import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
+import com.lineate.testyourlexicon.util.GameUtil;
 import com.lineate.testyourlexicon.util.UserMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,9 @@ public class UserService {
     }
 
     User registeredUser = userMapper.UserRegistrationDtoToUser(userRegistrationDto);
+    GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
+    defaultGameConfiguration.setUser(registeredUser);
+    registeredUser.setGameConfiguration(defaultGameConfiguration);
     try {
       userRepository.save(registeredUser);
     } catch (DataAccessException ex) {
@@ -41,7 +46,7 @@ public class UserService {
 
     logUserRegistration(userRegistrationDto);
 
-    return userMapper.UserToUserDto(registeredUser);
+    return UserMapper.UserToUserDto(registeredUser);
   }
 
   public List<UserDto> getAll() {
