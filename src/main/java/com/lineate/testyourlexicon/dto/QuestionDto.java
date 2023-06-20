@@ -12,10 +12,10 @@ import lombok.Setter;
 public class QuestionDto {
 
   @JsonProperty("question")
-  public String question;
+  private String question;
 
   @JsonProperty("answer_options")
-  public List<String> answerOptions;
+  private List<String> answerOptions;
 
   public void addAnswer(String answer) {
     answerOptions.add(answer);

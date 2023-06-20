@@ -7,11 +7,13 @@ import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.services.GameService;
+import com.lineate.testyourlexicon.services.TranslationService;
 import com.lineate.testyourlexicon.util.GameUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -22,20 +24,24 @@ import static org.mockito.Mockito.when;
 public class GameServiceTests {
 
   private GameService gameService;
+  private TranslationService translationService;
   private UserRepository userRepository;
 
   @BeforeEach
   public void setUp() {
     userRepository = mock(UserRepository.class);
-    gameService = new GameService(userRepository);
+    translationService = mock(TranslationService.class);
+    gameService = new GameService(userRepository, translationService);
   }
 
   @Test
   public void whenChangingUserGameConfiguration_GetChangedGameConfiguration() {
+    when(translationService.supportedLanguages())
+      .thenReturn(Arrays.asList("japanese", "german"));
     GameConfigurationDto customGameConfigurationDto = GameConfigurationDto
         .builder()
-        .translateFrom("Japanese")
-        .translateTo("German")
+        .translateFrom("japanese")
+        .translateTo("german")
         .numberOfSteps(16)
         .stepTimeInSeconds(15)
         .answerCount(10)
@@ -46,9 +52,9 @@ public class GameServiceTests {
       gameService.configure(customGameConfigurationDto, user);
 
     assertThat(gameConfigurationDto.getTranslateFrom())
-      .isEqualTo("Japanese");
+      .isEqualTo("japanese");
     assertThat(gameConfigurationDto.getTranslateTo())
-      .isEqualTo("German");
+      .isEqualTo("german");
     assertThat(gameConfigurationDto.getNumberOfSteps())
       .isEqualTo(16);
     assertThat(gameConfigurationDto.getStepTimeInSeconds())
@@ -60,9 +66,9 @@ public class GameServiceTests {
     // Check whether users game configuration has been changed
     GameConfiguration userGameConfiguration = user.getGameConfiguration();
     assertThat(userGameConfiguration.getTranslateFrom())
-      .isEqualTo("Japanese");
+      .isEqualTo("japanese");
     assertThat(userGameConfiguration.getTranslateTo())
-      .isEqualTo("German");
+      .isEqualTo("german");
     assertThat(userGameConfiguration.getNumberOfSteps())
       .isEqualTo(16);
     assertThat(userGameConfiguration.getStepTimeInSeconds())
@@ -73,6 +79,9 @@ public class GameServiceTests {
 
   @Test
   public void supportedLanguagesContainsDefaultOnes() {
+    when(translationService.supportedLanguages())
+      .thenReturn(Arrays.asList(GameUtil.DEFAULT_TRANSLATE_FROM_LANGUAGE,
+                                GameUtil.DEFAULT_TRANSLATE_TO_LANGUAGE));
     SupportedLanguagesDto supportedLanguagesDto
       = gameService.supportedLanguages();
     List<String> languages = supportedLanguagesDto.languages();

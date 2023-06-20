@@ -6,9 +6,7 @@ import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameMapper;
-import java.util.Arrays;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +14,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GameService {
   private final UserRepository userRepository;
-  private final LanguageService languageService;
+  private final TranslationService translationService;
 
   public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto, User user) {
     GameConfiguration gameConfiguration =
         GameMapper.gameConfigurationDtoToGameConfiguration(gameConfigurationDto);
-    List<String> supportedLanguages = languageService.supportedLanguages();
-    if (!supportedLanguages.contains(gameConfigurationDto.getTranslateFrom()))
+    List<String> supportedLanguages = translationService.supportedLanguages();
+    if (!supportedLanguages.contains(gameConfigurationDto.getTranslateFrom())
+        || !supportedLanguages.contains(gameConfigurationDto.getTranslateTo())) {
       throw new IllegalArgumentException("unsupported language");
-    if (!supportedLanguages.contains(gameConfigurationDto.getTranslateTo()))
-      throw new IllegalArgumentException("unsupported language");
+    }
 
     gameConfiguration.setId(user.getId());
     user.setGameConfiguration(gameConfiguration);
@@ -40,6 +38,6 @@ public class GameService {
   }
 
   public SupportedLanguagesDto supportedLanguages() {
-    return new SupportedLanguagesDto(languageService.supportedLanguages());
+    return new SupportedLanguagesDto(translationService.supportedLanguages());
   }
 }
