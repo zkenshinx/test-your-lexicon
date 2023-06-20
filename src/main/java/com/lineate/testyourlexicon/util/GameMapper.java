@@ -6,7 +6,8 @@ import com.lineate.testyourlexicon.entities.GameConfiguration;
 public class GameMapper {
 
 
-  public static GameConfiguration gameConfigurationDtoToGameConfiguration(GameConfigurationDto gameConfigurationDto) {
+  public static GameConfiguration gameConfigurationDtoToGameConfiguration(
+      GameConfigurationDto gameConfigurationDto) {
     return GameConfiguration.builder()
       .translateFrom(gameConfigurationDto.getTranslateFrom())
       .translateTo(gameConfigurationDto.getTranslateTo())
@@ -16,7 +17,8 @@ public class GameMapper {
       .build();
   }
 
-  public static GameConfigurationDto gameConfigurationToGameConfigurationDto(GameConfiguration gameConfiguration) {
+  public static GameConfigurationDto gameConfigurationToGameConfigurationDto(
+      GameConfiguration gameConfiguration) {
     return GameConfigurationDto.builder()
       .translateTo(gameConfiguration.getTranslateTo())
       .translateFrom(gameConfiguration.getTranslateFrom())
