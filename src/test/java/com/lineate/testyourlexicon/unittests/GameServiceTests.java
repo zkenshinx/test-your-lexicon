@@ -5,6 +5,7 @@ import com.lineate.testyourlexicon.dto.GameConfigurationDto;
 import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
+import com.lineate.testyourlexicon.repositories.GameRepository;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.services.GameService;
 import com.lineate.testyourlexicon.services.TranslationService;
@@ -26,12 +27,14 @@ public class GameServiceTests {
   private GameService gameService;
   private TranslationService translationService;
   private UserRepository userRepository;
+  private GameRepository gameRepository;
 
   @BeforeEach
   public void setUp() {
     userRepository = mock(UserRepository.class);
     translationService = mock(TranslationService.class);
-    gameService = new GameService(userRepository, translationService);
+    gameRepository = mock(GameRepository.class);
+    gameService = new GameService(userRepository, translationService, gameRepository);
   }
 
   @Test

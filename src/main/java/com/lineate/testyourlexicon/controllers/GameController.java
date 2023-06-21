@@ -19,7 +19,7 @@ public class GameController {
   private final GameService gameService;
   private final AuthenticationService authenticationService;
 
-  @PutMapping
+  @PostMapping
   public GameInitializedDto startGame() {
     return gameService.initGameForUser(getAuthenticatedUser());
   }
