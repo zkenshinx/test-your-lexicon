@@ -2,17 +2,14 @@ package com.lineate.testyourlexicon.unittests;
 
 
 import com.lineate.testyourlexicon.dto.QuestionDto;
-import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
 import com.lineate.testyourlexicon.models.Translation;
 import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import com.lineate.testyourlexicon.services.TranslationService;
-import com.lineate.testyourlexicon.util.GameUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
