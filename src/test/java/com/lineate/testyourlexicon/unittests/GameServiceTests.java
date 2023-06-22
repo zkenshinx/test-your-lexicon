@@ -2,7 +2,9 @@ package com.lineate.testyourlexicon.unittests;
 
 
 import com.lineate.testyourlexicon.dto.GameConfigurationDto;
+import com.lineate.testyourlexicon.dto.GameInitializedDto;
 import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
+import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.GameRepository;
@@ -16,10 +18,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class GameServiceTests {
@@ -35,6 +37,20 @@ public class GameServiceTests {
     translationService = mock(TranslationService.class);
     gameRepository = mock(GameRepository.class);
     gameService = new GameService(userRepository, translationService, gameRepository);
+  }
+
+  @Test
+  public void whenInitGameForUser_ThenGameIsCreatedInDatabase() {
+    User user = getExampleUserWithDefaultGameConfiguration();
+    gameService.initGameForUser(user);
+    verify(gameRepository).save(any());
+  }
+
+  @Test
+  public void whenUserHasAlreadyStartedGame_ExceptionIsThrown() {
+    User user = getExampleUserWithDefaultGameConfiguration();
+    when(gameRepository.getUserActiveGame(user)).thenReturn(Optional.of(new Game()));
+    assertThatException().isThrownBy(() -> gameService.initGameForUser(user));
   }
 
   @Test
