@@ -10,8 +10,8 @@ public class GameUtil {
   public static final int DEFAULT_STEP_TIME = 20;
   public static final int DEFAULT_ANSWER_COUNT = 4;
 
-  public static final String DEFAULT_TRANSLATE_FROM_LANGUAGE = "English";
-  public static final String DEFAULT_TRANSLATE_TO_LANGUAGE = "Georgian";
+  public static final String DEFAULT_TRANSLATE_FROM_LANGUAGE = "english";
+  public static final String DEFAULT_TRANSLATE_TO_LANGUAGE = "georgian";
 
   public static GameConfiguration defaultGameConfiguration() {
     return GameConfiguration.builder()
