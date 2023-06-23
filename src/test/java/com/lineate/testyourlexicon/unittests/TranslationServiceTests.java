@@ -31,7 +31,7 @@ public class TranslationServiceTests {
   @Test
   public void testTranslationServiceGetRandomQuestion() {
     Translation translation = Translation.builder()
-      .id(0)
+      .id(0L)
       .translateFromWord("sea")
       .translateToWord("seaTranslation")
       .build();

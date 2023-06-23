@@ -8,6 +8,8 @@ import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.GameRepository;
+import com.lineate.testyourlexicon.repositories.QuestionRepository;
+import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.services.GameService;
 import com.lineate.testyourlexicon.services.TranslationService;
@@ -28,15 +30,20 @@ public class GameServiceTests {
 
   private GameService gameService;
   private TranslationService translationService;
+  private TranslationRepository translationRepository;
   private UserRepository userRepository;
   private GameRepository gameRepository;
+  private QuestionRepository questionRepository;
 
   @BeforeEach
   public void setUp() {
     userRepository = mock(UserRepository.class);
     translationService = mock(TranslationService.class);
+    translationRepository = mock(TranslationRepository.class);
+    questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
-//    gameService = new GameService(userRepository, translationService, gameRepository);
+    gameService = new GameService(userRepository, translationService, translationRepository,
+      gameRepository, questionRepository);
   }
 
   @Test
