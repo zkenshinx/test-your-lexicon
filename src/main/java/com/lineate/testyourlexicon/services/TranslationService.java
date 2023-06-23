@@ -32,6 +32,6 @@ public class TranslationService {
   }
 
   public List<String> supportedLanguages() {
-    return Arrays.asList("English", "Georgian", "Russian", "German");
+    return Arrays.asList("english", "georgian", "russian", "german");
   }
 }

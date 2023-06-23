@@ -13,6 +13,7 @@ import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameMapper;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,60 +64,59 @@ public class GameService {
     return new GameInitializedDto(game.getGameId());
   }
 
-  public StepDto userActiveGameNextStep(User user, long gameId) {
-    checkIfGameNotActiveForUser(user);
-    Game game = gameRepository.findById(gameId)
-        .orElseThrow(() -> new GeneralMessageException("Game id not valid"));
-    if (game.getStepsLeft() <= 0) {
-      throw new GeneralMessageException("Game has already finished");
-    }
-    // Get users game configuration parameters
-    GameConfiguration userGameConfiguration = user.getGameConfiguration();
-    String translateFrom = userGameConfiguration.getTranslateFrom();
-    String translateTo = userGameConfiguration.getTranslateTo();
-    int answerOptionsCount = userGameConfiguration.getAnswerCount();
-
-    // Generate random question
+  public Question generateRandomQuestion(GameConfiguration gameConfiguration, Game game) {
+    String translateFrom = gameConfiguration.getTranslateFrom();
+    String translateTo = gameConfiguration.getTranslateTo();
+    int answerOptionsCount = gameConfiguration.getAnswerCount();
     Question question = null;
     do {
       question = translationService.getRandomQuestion(translateFrom,
         translateTo, answerOptionsCount);
     } while (questionRepository.existsByGameAndTranslationId(game, question.getTranslationId()));
+    return question;
+  }
 
-    // Save question in database
+  public QuestionEntity saveQuestionInDatabase(Question question, Game game) {
     QuestionEntity questionEntity = new QuestionEntity();
     questionEntity.setGuessed(false);
     questionEntity.setTranslationId(question.getTranslationId());
     questionEntity.setGame(game);
-    questionEntity = questionRepository.save(questionEntity);
+    return questionRepository.save(questionEntity);
+  }
 
+  public Game updateGameCurrentQuestion(Game game, QuestionEntity questionEntity) {
     game.setStepsLeft(game.getStepsLeft() - 1);
     game.setCurrentQuestionId(questionEntity.getId());
-    gameRepository.save(game);
+    return gameRepository.save(game);
+  }
 
+  public StepDto userActiveGameNextStep(User user, long gameId) {
+    Game game = validateGameForUser(user, gameId);
+    Question question = generateRandomQuestion(user.getGameConfiguration(), game);
+    QuestionEntity questionEntity = saveQuestionInDatabase(question, game);
+    game = updateGameCurrentQuestion(game, questionEntity);
     log.info("Generated step {'user': {}, 'game_id': {}, 'question_id': {}}",
         user.getId(), game.getGameId(), questionEntity.getId());
-    return StepDto.builder()
-      .question(question)
-      .gameId(gameId)
-      .build();
+    return new StepDto(question, gameId);
+  }
+
+  public QuestionEntity getQuestion(Long questionId) {
+    if (questionId == null) {
+      throw new GeneralMessageException("Couldn't not find active question");
+    }
+    Optional<QuestionEntity> questionEntity =
+      questionRepository.findById(questionId);
+    if (questionEntity.isEmpty()) {
+      throw new GeneralMessageException("Invalid question id");
+    }
+    return questionEntity.get();
   }
 
   public AnswerResponseDto userActiveGameAnswer(User user,
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
-    checkIfGameNotActiveForUser(user);
-    Game game = gameRepository.findById(gameId)
-        .orElseThrow(() -> new GeneralMessageException("Game id not valid or game has finished"));
-    if (game.getStepsLeft() <= 0) {
-      throw new GeneralMessageException("Game has already finished");
-    }
-    Long currentQuestionId = game.getCurrentQuestionId();
-    if (currentQuestionId == null) {
-      throw new GeneralMessageException("Couldn't find active question");
-    }
-    QuestionEntity questionEntity =
-        questionRepository.findById(currentQuestionId).get();
+    Game game = validateGameForUser(user, gameId);
+    QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
 
     // Get correct answer
     Long translationId = questionEntity.getTranslationId();
@@ -133,7 +133,7 @@ public class GameService {
     game.setCurrentQuestionId(null);
     gameRepository.save(game);
     log.info("User answered a step {'user': {}, 'game_id': {}, 'question': {}}",
-      user.getId(), game.getGameId(), questionEntity.getId());
+        user.getId(), game.getGameId(), questionEntity.getId());
     return AnswerResponseDto.builder()
       .guessed(guessed)
       .correctAnswer(correctAnswer)
@@ -147,9 +147,23 @@ public class GameService {
     }
   }
 
-  private void checkIfGameNotActiveForUser(User user) {
-    if (gameRepository.getUserActiveGame(user).isEmpty()) {
-      throw new GeneralMessageException("A game is not started for the user");
+  private Game validateGameForUser(User user, Long gameId) {
+    Optional<Game> gameOptional = gameRepository.findById(gameId);
+    if (gameOptional.isEmpty()) {
+      log.info("User tried to access game with invalid id "
+          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+      throw new GeneralMessageException("Game id not valid");
     }
+    Game game = gameOptional.get();
+    if (!game.getUser().equals(user)) {
+      log.info("User tried to access game that didn't belong to him "
+          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+      throw new GeneralMessageException("Given game doesn't belong to the user");
+    } else if (game.getStepsLeft() <= 0) {
+      log.info("User tried to access game that was finished "
+          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+      throw new GeneralMessageException("Game has already finished");
+    }
+    return game;
   }
 }
