@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class Translation {
 
-  private Integer id;
+  private Long id;
   private String translateFromWord;
   private String translateToWord;
 

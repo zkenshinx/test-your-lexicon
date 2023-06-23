@@ -36,7 +36,7 @@ public class GameServiceTests {
     userRepository = mock(UserRepository.class);
     translationService = mock(TranslationService.class);
     gameRepository = mock(GameRepository.class);
-    gameService = new GameService(userRepository, translationService, gameRepository);
+//    gameService = new GameService(userRepository, translationService, gameRepository);
   }
 
   @Test

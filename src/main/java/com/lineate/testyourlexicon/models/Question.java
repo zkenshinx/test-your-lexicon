@@ -1,5 +1,6 @@
-package com.lineate.testyourlexicon.dto;
+package com.lineate.testyourlexicon.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,10 +10,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class QuestionDto {
+public class Question {
 
-  @JsonProperty("question")
-  private String question;
+  @JsonIgnore
+  private Long translationId;
+
+  @JsonProperty("word")
+  private String word;
 
   @JsonProperty("answer_options")
   private List<String> answerOptions;

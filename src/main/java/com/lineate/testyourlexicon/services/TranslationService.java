@@ -1,6 +1,6 @@
 package com.lineate.testyourlexicon.services;
 
-import com.lineate.testyourlexicon.dto.QuestionDto;
+import com.lineate.testyourlexicon.models.Question;
 import com.lineate.testyourlexicon.models.Translation;
 import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import java.util.Arrays;
@@ -14,19 +14,21 @@ public class TranslationService {
 
   private final TranslationRepository translationRepository;
 
-  public QuestionDto getRandomQuestion(String translateFrom,
-                                       String translateTo,
-                                       int answerOptionsCount) {
-    Translation singleTranslationDto =
+  public Question getRandomQuestion(String translateFrom,
+                                    String translateTo,
+                                    int answerOptionsCount) {
+    Translation translation =
         translationRepository.getRandomTranslation(translateFrom, translateTo);
     List<String> possibleAnswers = translationRepository
         .getRandomWordsFromLanguageNotHavingId(translateTo,
-                                               singleTranslationDto.getId(),
+                                               translation.getId(),
                                                answerOptionsCount - 1);
-    QuestionDto questionDto =
-        new QuestionDto(singleTranslationDto.getTranslateFromWord(), possibleAnswers);
-    questionDto.addAnswer(singleTranslationDto.getTranslateToWord());
-    return questionDto;
+    Question question =
+        new Question(translation.getId(),
+                     translation.getTranslateFromWord(),
+                     possibleAnswers);
+    question.addAnswer(translation.getTranslateToWord());
+    return question;
   }
 
   public List<String> supportedLanguages() {

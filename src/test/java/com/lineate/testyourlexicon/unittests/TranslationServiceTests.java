@@ -1,18 +1,15 @@
 package com.lineate.testyourlexicon.unittests;
 
 
-import com.lineate.testyourlexicon.dto.QuestionDto;
-import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
+import com.lineate.testyourlexicon.models.Question;
 import com.lineate.testyourlexicon.models.Translation;
 import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import com.lineate.testyourlexicon.services.TranslationService;
-import com.lineate.testyourlexicon.util.GameUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -43,9 +40,9 @@ public class TranslationServiceTests {
     when(translationRepository.getRandomWordsFromLanguageNotHavingId("georgian", 0, 3))
       .thenReturn(new ArrayList<String>(List.of("notSea", "notSea2", "notSea3")));
 
-    QuestionDto questionDto =
+    Question questionDto =
       translationService.getRandomQuestion("english", "georgian", 4);
-    assertThat(questionDto.getQuestion()).isEqualTo("sea");
+    assertThat(questionDto.getWord()).isEqualTo("sea");
     assertThat(questionDto.getAnswerOptions()).hasSize(4);
     assertThat(questionDto.getAnswerOptions().contains("seaTranslation")).isTrue();
   }

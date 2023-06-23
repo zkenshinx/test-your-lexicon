@@ -1,8 +1,6 @@
 package com.lineate.testyourlexicon.controllers;
 
-import com.lineate.testyourlexicon.dto.GameConfigurationDto;
-import com.lineate.testyourlexicon.dto.GameInitializedDto;
-import com.lineate.testyourlexicon.dto.SupportedLanguagesDto;
+import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.UserNotAuthenticatedException;
 import com.lineate.testyourlexicon.services.AuthenticationService;
@@ -22,6 +20,17 @@ public class GameController {
   @PostMapping
   public GameInitializedDto startGame() {
     return gameService.initGameForUser(getAuthenticatedUser());
+  }
+
+  @GetMapping("/{gameId}/step")
+  public StepDto nextStep(@PathVariable("gameId") Long gameId) {
+    return gameService.userActiveGameNextStep(getAuthenticatedUser(), gameId);
+  }
+
+  @PutMapping("/{gameId}/answer")
+  public AnswerResponseDto answer(@PathVariable("gameId") Long gameId,
+                                  @RequestBody AnswerRequestDto answerRequestDto) {
+    return gameService.userActiveGameAnswer(getAuthenticatedUser(), answerRequestDto, gameId);
   }
 
   @GetMapping("/supported-languages")
