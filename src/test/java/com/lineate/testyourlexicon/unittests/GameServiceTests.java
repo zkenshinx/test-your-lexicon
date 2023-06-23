@@ -77,7 +77,7 @@ public class GameServiceTests {
   }
 
   @Test
-  public void whenSavingGameQuestionOnDatabase_ThenReturnCorrespondingQuestinEntity() {
+  public void whenSavingGameQuestionOnDatabase_ThenReturnCorrespondingQuestionEntity() {
     when(questionRepository.save(any()))
       .thenAnswer(new Answer<QuestionEntity>() {
 
