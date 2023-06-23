@@ -35,7 +35,7 @@ public class TranslationRepository {
 
   public String languageDefinitionGivenIdAndLanguage(Long id, String language) {
     String sqlQuery = String.format("SELECT %s AS language FROM translations "
-       + "WHERE id = %s", language, id);
+        + "WHERE id = %s", language, id);
     return jdbcTemplate.query(
       sqlQuery,
       (resultSet, rowNum) -> resultSet.getString("language")

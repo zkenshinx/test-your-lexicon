@@ -58,6 +58,8 @@ public class GameService {
     game.setUser(user);
     game.setStepsLeft(user.getGameConfiguration().getNumberOfSteps());
     gameRepository.save(game);
+    log.info("Initialized new game for user {'user': {}, 'game_id': {}}",
+        user.getId(), game.getGameId());
     return new GameInitializedDto(game.getGameId());
   }
 
@@ -66,7 +68,6 @@ public class GameService {
     Game game = gameRepository.findById(gameId)
         .orElseThrow(() -> new GeneralMessageException("Game id not valid"));
     if (game.getStepsLeft() <= 0) {
-      log.info("User tried to retrieve step from finished gamed {'user': {}}", user.getId());
       throw new GeneralMessageException("Game has already finished");
     }
     // Get users game configuration parameters
@@ -78,7 +79,8 @@ public class GameService {
     // Generate random question
     Question question = null;
     do {
-      question = translationService.getRandomQuestion(translateFrom, translateTo, answerOptionsCount);
+      question = translationService.getRandomQuestion(translateFrom,
+        translateTo, answerOptionsCount);
     } while (questionRepository.existsByGameAndTranslationId(game, question.getTranslationId()));
 
     // Save question in database
@@ -92,7 +94,8 @@ public class GameService {
     game.setCurrentQuestionId(questionEntity.getId());
     gameRepository.save(game);
 
-    log.info("Generated step {'user': {}, 'question': {}}", user.getId(), questionEntity.getId());
+    log.info("Generated step {'user': {}, 'game_id': {}, 'question_id': {}}",
+        user.getId(), game.getGameId(), questionEntity.getId());
     return StepDto.builder()
       .question(question)
       .gameId(gameId)
@@ -106,7 +109,6 @@ public class GameService {
     Game game = gameRepository.findById(gameId)
         .orElseThrow(() -> new GeneralMessageException("Game id not valid or game has finished"));
     if (game.getStepsLeft() <= 0) {
-      log.info("User tried to answer finished gamed {'user': {}}", user.getId());
       throw new GeneralMessageException("Game has already finished");
     }
     Long currentQuestionId = game.getCurrentQuestionId();
@@ -130,7 +132,8 @@ public class GameService {
     }
     game.setCurrentQuestionId(null);
     gameRepository.save(game);
-
+    log.info("User answered a step {'user': {}, 'game_id': {}, 'question': {}}",
+      user.getId(), game.getGameId(), questionEntity.getId());
     return AnswerResponseDto.builder()
       .guessed(guessed)
       .correctAnswer(correctAnswer)
