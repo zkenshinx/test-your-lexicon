@@ -40,10 +40,10 @@ public class TranslationServiceTests {
     when(translationRepository.getRandomWordsFromLanguageNotHavingId("georgian", 0, 3))
       .thenReturn(new ArrayList<String>(List.of("notSea", "notSea2", "notSea3")));
 
-    Question questionDto =
+    Question question =
       translationService.getRandomQuestion("english", "georgian", 4);
-    assertThat(questionDto.getWord()).isEqualTo("sea");
-    assertThat(questionDto.getAnswerOptions()).hasSize(4);
-    assertThat(questionDto.getAnswerOptions().contains("seaTranslation")).isTrue();
+    assertThat(question.getWord()).isEqualTo("sea");
+    assertThat(question.getAnswerOptions()).hasSize(4);
+    assertThat(question.getAnswerOptions().contains("seaTranslation")).isTrue();
   }
 }
