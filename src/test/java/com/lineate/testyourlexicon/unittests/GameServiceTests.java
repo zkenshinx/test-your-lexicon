@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.context.SpringBootTest;
+import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,7 @@ public class GameServiceTests {
   private UserRepository userRepository;
   private GameRepository gameRepository;
   private QuestionRepository questionRepository;
+  private Jedis jedis;
 
   @BeforeEach
   public void setUp() {
@@ -44,8 +46,9 @@ public class GameServiceTests {
     translationRepository = mock(TranslationRepository.class);
     questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
+    jedis = mock(Jedis.class);
     gameService = new GameService(userRepository, translationService, translationRepository,
-      gameRepository, questionRepository);
+      gameRepository, questionRepository, jedis);
   }
 
   @Test
