@@ -10,7 +10,8 @@ of suggested words.
 * Checkstyle
 * Flyway
 * PostgreSQL
-* Data JPA, Hibernate
+* Redis
+* Data JPA, Hibernate, Jedis
 
 ## Prerequisities
 
