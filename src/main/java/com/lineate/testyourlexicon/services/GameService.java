@@ -17,6 +17,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -94,9 +95,9 @@ public class GameService {
     Game game = validateGameForUser(user, gameId);
     Question question = generateRandomQuestion(user.getGameConfiguration(), game);
     QuestionEntity questionEntity = saveQuestionInDatabase(question, game);
-    game = updateGameCurrentQuestion(game, questionEntity);
+    final Game updatedGame = updateGameCurrentQuestion(game, questionEntity);
     log.info("Generated step {'user': {}, 'game_id': {}, 'question_id': {}}",
-        user.getId(), game.getGameId(), questionEntity.getId());
+        user.getId(), updatedGame.getGameId(), questionEntity.getId());
     return new StepDto(question, gameId);
   }
 
@@ -105,13 +106,14 @@ public class GameService {
       throw new GeneralMessageException("Couldn't not find active question");
     }
     Optional<QuestionEntity> questionEntity =
-      questionRepository.findById(questionId);
+        questionRepository.findById(questionId);
     if (questionEntity.isEmpty()) {
       throw new GeneralMessageException("Invalid question id");
     }
     return questionEntity.get();
   }
 
+  @Transactional
   public AnswerResponseDto userActiveGameAnswer(User user,
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
@@ -148,18 +150,17 @@ public class GameService {
   }
 
   private Game validateGameForUser(User user, Long gameId) {
-    Optional<Game> gameOptional = gameRepository.findById(gameId);
-    if (gameOptional.isEmpty()) {
+    Game game = gameRepository.findById(gameId).orElseThrow(() -> {
       log.info("User tried to access game with invalid id "
           + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
-      throw new GeneralMessageException("Game id not valid");
-    }
-    Game game = gameOptional.get();
+      return new GeneralMessageException("Game id not valid");
+    });
     if (!game.getUser().equals(user)) {
       log.info("User tried to access game that didn't belong to him "
           + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
       throw new GeneralMessageException("Given game doesn't belong to the user");
-    } else if (game.getStepsLeft() <= 0) {
+    }
+    if (game.getStepsLeft() <= 0) {
       log.info("User tried to access game that was finished "
           + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
       throw new GeneralMessageException("Game has already finished");
