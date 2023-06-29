@@ -98,9 +98,11 @@ public class GameService {
     jedis.setex(redisKey, time, "");
   }
 
-  public boolean checkTimeout(long gameId) {
+  public void checkTimeout(long gameId) {
     String redisKey = String.format("game_id:step:%d", gameId);
-    return jedis.exists(redisKey);
+    if (!jedis.exists(redisKey)) {
+      throw new GeneralMessageException("Step timed out!");
+    }
   }
 
   public StepDto userActiveGameNextStep(User user, long gameId) {
@@ -132,9 +134,7 @@ public class GameService {
                                    long gameId) {
     Game game = validateGameForUser(user, gameId);
     // Check if game isn't timed out
-    if (!checkTimeout(gameId)) {
-      throw new GeneralMessageException("Step timed out!");
-    }
+    checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
 
     // Get correct answer
