@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class GameService {
   private final TranslationRepository translationRepository;
   private final GameRepository gameRepository;
   private final QuestionRepository questionRepository;
+  private final Jedis jedis;
 
   public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto, User user) {
     GameConfiguration gameConfiguration =
@@ -91,6 +93,11 @@ public class GameService {
     return gameRepository.save(game);
   }
 
+  public void startStepTimeout(long gameId, int time) {
+    String redisKey = String.format("game_id:step:%d", gameId);
+    jedis.setex(redisKey, time, "");
+  }
+
   public StepDto userActiveGameNextStep(User user, long gameId) {
     Game game = validateGameForUser(user, gameId);
     Question question = generateRandomQuestion(user.getGameConfiguration(), game);
@@ -98,6 +105,7 @@ public class GameService {
     final Game updatedGame = updateGameCurrentQuestion(game, questionEntity);
     log.info("Generated step {'user': {}, 'game_id': {}, 'question_id': {}}",
         user.getId(), updatedGame.getGameId(), questionEntity.getId());
+    startStepTimeout(gameId, user.getGameConfiguration().getStepTimeInSeconds());
     return new StepDto(question, gameId);
   }
 
@@ -118,6 +126,10 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(user, gameId);
+    // Check if game isn't timed out
+    if (!jedis.exists(String.format("game_id:step:%d", gameId))) {
+      throw new GeneralMessageException("Step timed out!");
+    }
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
 
     // Get correct answer
