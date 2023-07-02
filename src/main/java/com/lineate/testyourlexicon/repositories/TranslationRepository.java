@@ -17,19 +17,28 @@ public class TranslationRepository {
         + "FROM translations ORDER BY random() LIMIT 1", translateFrom, translateTo);
     return jdbcTemplate.query(sqlQuery,
       (resultSet, rowNum) -> Translation.builder()
-        .id(resultSet.getInt("id"))
+        .id(resultSet.getLong("id"))
         .translateFromWord(resultSet.getString("translate_from"))
         .translateToWord(resultSet.getString("translate_to"))
         .build()
     ).get(0);
   }
 
-  public List<String> getRandomWordsFromLanguageNotHavingId(String language, int id, int count) {
+  public List<String> getRandomWordsFromLanguageNotHavingId(String language, long id, int count) {
     String sqlQuery = String.format("SELECT %s AS language FROM translations "
         + "WHERE id != %s ORDER BY random() LIMIT %s", language, id, count);
     return jdbcTemplate.query(
       sqlQuery,
       (resultSet, rowNum) -> resultSet.getString("language")
     );
+  }
+
+  public String languageDefinitionGivenIdAndLanguage(Long id, String language) {
+    String sqlQuery = String.format("SELECT %s AS language FROM translations "
+        + "WHERE id = %s", language, id);
+    return jdbcTemplate.query(
+      sqlQuery,
+      (resultSet, rowNum) -> resultSet.getString("language")
+    ).get(0);
   }
 }

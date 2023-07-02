@@ -1,7 +1,7 @@
 package com.lineate.testyourlexicon.unittests;
 
 
-import com.lineate.testyourlexicon.dto.QuestionDto;
+import com.lineate.testyourlexicon.models.Question;
 import com.lineate.testyourlexicon.models.Translation;
 import com.lineate.testyourlexicon.repositories.TranslationRepository;
 import com.lineate.testyourlexicon.services.TranslationService;
@@ -31,7 +31,7 @@ public class TranslationServiceTests {
   @Test
   public void testTranslationServiceGetRandomQuestion() {
     Translation translation = Translation.builder()
-      .id(0)
+      .id(0L)
       .translateFromWord("sea")
       .translateToWord("seaTranslation")
       .build();
@@ -40,10 +40,10 @@ public class TranslationServiceTests {
     when(translationRepository.getRandomWordsFromLanguageNotHavingId("georgian", 0, 3))
       .thenReturn(new ArrayList<String>(List.of("notSea", "notSea2", "notSea3")));
 
-    QuestionDto questionDto =
+    Question question =
       translationService.getRandomQuestion("english", "georgian", 4);
-    assertThat(questionDto.getQuestion()).isEqualTo("sea");
-    assertThat(questionDto.getAnswerOptions()).hasSize(4);
-    assertThat(questionDto.getAnswerOptions().contains("seaTranslation")).isTrue();
+    assertThat(question.getWord()).isEqualTo("sea");
+    assertThat(question.getAnswerOptions()).hasSize(4);
+    assertThat(question.getAnswerOptions().contains("seaTranslation")).isTrue();
   }
 }
