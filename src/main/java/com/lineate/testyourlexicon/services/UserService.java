@@ -4,8 +4,10 @@ import com.lineate.testyourlexicon.dto.UserDto;
 import com.lineate.testyourlexicon.dto.UserRegistrationDto;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.User;
+import com.lineate.testyourlexicon.repositories.GameConfigurationRepository;
 import com.lineate.testyourlexicon.repositories.UserRepository;
 import com.lineate.testyourlexicon.util.GameUtil;
+import com.lineate.testyourlexicon.util.Hash;
 import com.lineate.testyourlexicon.util.UserMapper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserService {
 
+  private final GameConfigurationRepository gameConfigurationRepository;
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
@@ -35,15 +38,16 @@ public class UserService {
     }
 
     User registeredUser = userMapper.userRegistrationDtoToUser(userRegistrationDto);
-    GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
-    defaultGameConfiguration.setUser(registeredUser);
-    registeredUser.setGameConfiguration(defaultGameConfiguration);
 
     try {
       userRepository.save(registeredUser);
     } catch (DataAccessException ex) {
       throw new IllegalArgumentException("Email is already in use!");
     }
+
+    GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
+    defaultGameConfiguration.setHash(Hash.hashToLong(registeredUser.getId()));
+    gameConfigurationRepository.save(defaultGameConfiguration);
 
     logUserRegistration(userRegistrationDto);
 
@@ -54,5 +58,9 @@ public class UserService {
     return userRepository.findAll().stream()
       .map(UserMapper::userToUserDto)
       .collect(Collectors.toList());
+  }
+
+  public User findUserByEmail(String email) {
+    return userRepository.findUserByEmail(email).get();
   }
 }
