@@ -3,14 +3,9 @@ package com.lineate.testyourlexicon.unittests;
 
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
-import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
-import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.models.Question;
-import com.lineate.testyourlexicon.repositories.GameRepository;
-import com.lineate.testyourlexicon.repositories.QuestionRepository;
-import com.lineate.testyourlexicon.repositories.TranslationRepository;
-import com.lineate.testyourlexicon.repositories.UserRepository;
+import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.services.GameService;
 import com.lineate.testyourlexicon.services.TranslationService;
 import com.lineate.testyourlexicon.util.GameUtil;
@@ -18,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,25 +21,24 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 public class GameServiceTests {
 
+  private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
   private TranslationService translationService;
   private TranslationRepository translationRepository;
-  private UserRepository userRepository;
   private GameRepository gameRepository;
   private QuestionRepository questionRepository;
 
   @BeforeEach
   public void setUp() {
-    userRepository = mock(UserRepository.class);
     translationService = mock(TranslationService.class);
     translationRepository = mock(TranslationRepository.class);
     questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
-    gameService = new GameService(userRepository, translationService, translationRepository,
-      gameRepository, questionRepository);
+    gameConfigurationRepository = mock(GameConfigurationRepository.class);
+    gameService = new GameService(gameConfigurationRepository, translationService,
+      translationRepository, gameRepository, questionRepository);
   }
 
   @Test
@@ -114,10 +107,10 @@ public class GameServiceTests {
   public void whenUserAnswersCorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
-    User user = getExampleUserWithDefaultGameConfiguration();
+    Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
-    game.setUser(user);
+    game.setHash(userHash);
     game.setStepsLeft(10);
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
@@ -128,7 +121,7 @@ public class GameServiceTests {
     answerRequestDto.setAnswer("correct");
 
     AnswerResponseDto answerResponseDto =
-         gameService.userActiveGameAnswer(user, answerRequestDto, game.getGameId());
+         gameService.userActiveGameAnswer(userHash, answerRequestDto, game.getGameId());
     assertThat(answerResponseDto.isGuessed()).isTrue();
     assertThat(answerResponseDto.getUserAnswer()).isEqualTo("correct");
     assertThat(answerResponseDto.getCorrectAnswer()).isEqualTo("correct");
@@ -139,10 +132,10 @@ public class GameServiceTests {
   public void whenUserAnswersIncorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
-    User user = getExampleUserWithDefaultGameConfiguration();
+    Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
-    game.setUser(user);
+    game.setHash(userHash);
     game.setStepsLeft(10);
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
@@ -153,7 +146,7 @@ public class GameServiceTests {
     answerRequestDto.setAnswer("incorrect");
 
     AnswerResponseDto answerResponseDto =
-      gameService.userActiveGameAnswer(user, answerRequestDto, game.getGameId());
+      gameService.userActiveGameAnswer(userHash, answerRequestDto, game.getGameId());
     assertThat(answerResponseDto.isGuessed()).isFalse();
     assertThat(answerResponseDto.getUserAnswer()).isEqualTo("incorrect");
     assertThat(answerResponseDto.getCorrectAnswer()).isEqualTo("correct");
@@ -161,60 +154,17 @@ public class GameServiceTests {
 
   @Test
   public void whenInitGameForUser_ThenGameIsCreatedInDatabase() {
-    User user = getExampleUserWithDefaultGameConfiguration();
-    gameService.initGameForUser(user);
+    gameService.initGameForUser(12345L);
     verify(gameRepository).save(any());
   }
 
   @Test
   public void whenUserHasAlreadyStartedGame_ExceptionIsThrown() {
-    User user = getExampleUserWithDefaultGameConfiguration();
-    when(gameRepository.getUserActiveGame(user)).thenReturn(Optional.of(new Game()));
-    assertThatException().isThrownBy(() -> gameService.initGameForUser(user));
+    Long userHash = 12345L;
+    when(gameRepository.getUserActiveGame(userHash)).thenReturn(Optional.of(new Game()));
+    assertThatException().isThrownBy(() -> gameService.initGameForUser(userHash));
   }
 
-  @Test
-  public void whenChangingUserGameConfiguration_GetChangedGameConfiguration() {
-    when(translationService.supportedLanguages())
-      .thenReturn(Arrays.asList("japanese", "german"));
-    GameConfigurationDto customGameConfigurationDto = GameConfigurationDto
-        .builder()
-        .translateFrom("japanese")
-        .translateTo("german")
-        .numberOfSteps(16)
-        .stepTimeInSeconds(15)
-        .answerCount(10)
-        .build();
-    User user = getExampleUserWithDefaultGameConfiguration();
-    when(userRepository.save(user)).thenReturn(user);
-    GameConfigurationDto gameConfigurationDto =
-      gameService.configure(customGameConfigurationDto, user);
-
-    assertThat(gameConfigurationDto.getTranslateFrom())
-      .isEqualTo("japanese");
-    assertThat(gameConfigurationDto.getTranslateTo())
-      .isEqualTo("german");
-    assertThat(gameConfigurationDto.getNumberOfSteps())
-      .isEqualTo(16);
-    assertThat(gameConfigurationDto.getStepTimeInSeconds())
-      .isEqualTo(15);
-    assertThat(gameConfigurationDto.getAnswerCount())
-      .isEqualTo(10);
-
-
-    // Check whether users game configuration has been changed
-    GameConfiguration userGameConfiguration = user.getGameConfiguration();
-    assertThat(userGameConfiguration.getTranslateFrom())
-      .isEqualTo("japanese");
-    assertThat(userGameConfiguration.getTranslateTo())
-      .isEqualTo("german");
-    assertThat(userGameConfiguration.getNumberOfSteps())
-      .isEqualTo(16);
-    assertThat(userGameConfiguration.getStepTimeInSeconds())
-      .isEqualTo(15);
-    assertThat(userGameConfiguration.getAnswerCount())
-      .isEqualTo(10);
-  }
 
   @Test
   public void supportedLanguagesContainsDefaultOnes() {
@@ -232,10 +182,8 @@ public class GameServiceTests {
 
   @Test
   public void whenUserHasDefaultConfiguration_WeGetSameConfigurationBack() {
-    User user = getExampleUserWithDefaultGameConfiguration();
-
     GameConfigurationDto gameConfigurationDto =
-      gameService.userConfiguration(user);
+      gameService.userConfiguration(12345L);
 
     assertThat(gameConfigurationDto.getTranslateFrom())
       .isEqualTo(GameUtil.DEFAULT_TRANSLATE_FROM_LANGUAGE);
@@ -248,20 +196,4 @@ public class GameServiceTests {
     assertThat(gameConfigurationDto.getAnswerCount())
       .isEqualTo(GameUtil.DEFAULT_ANSWER_COUNT);
   }
-
-  private User getExampleUserWithDefaultGameConfiguration() {
-    User user = new User();
-    user.setEmail("user@gmail.com");
-    user.setId(1L);
-    user.setFirstName("first");
-    user.setLastName("last");
-
-    GameConfiguration gameConfiguration = GameUtil.defaultGameConfiguration();
-    gameConfiguration.setUser(user);
-    gameConfiguration.setId(user.getId());
-
-    user.setGameConfiguration(gameConfiguration);
-    return user;
-  }
-
 }
