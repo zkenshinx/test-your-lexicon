@@ -15,8 +15,8 @@ import lombok.*;
 public class GameConfiguration {
 
   @Id
-  @Column(name = "user_id")
-  private Long id;
+  @Column(name = "user_hash")
+  private Long hash;
   @Column(name = "translate_from")
   private String translateFrom;
   @Column(name = "translate_to")
@@ -27,8 +27,5 @@ public class GameConfiguration {
   private Integer stepTimeInSeconds;
   @Column(name = "answer_count")
   private Integer answerCount;
-  @OneToOne
-  @MapsId
-  @JoinColumn(name = "user_id")
-  private User user;
+
 }

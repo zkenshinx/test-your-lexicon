@@ -15,8 +15,8 @@ public class Game {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "game_id")
   private Long gameId;
-  @ManyToOne
-  private User user;
+  @Column(name = "user_hash")
+  private Long hash;
   @Column(name = "steps_left")
   private Integer stepsLeft;
   @Nullable
