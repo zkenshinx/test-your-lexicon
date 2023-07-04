@@ -3,7 +3,6 @@ package com.lineate.testyourlexicon.controllers;
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.services.AuthenticationService;
 import com.lineate.testyourlexicon.services.GameService;
-import com.lineate.testyourlexicon.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
