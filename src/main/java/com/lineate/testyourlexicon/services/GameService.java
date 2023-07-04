@@ -155,6 +155,8 @@ public class GameService {
     gameRepository.save(game);
     int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
     int stepCount = userConfiguration(userHash).getNumberOfSteps();
+    log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
+      userHash, game.getGameId());
     return GameEndDto.builder()
       .stepCount(stepCount)
       .correctlyAnswered(correctlyAnswered)
