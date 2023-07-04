@@ -40,7 +40,7 @@ public class GameController {
   @PostMapping("/{gameId}/end")
   public GameEndDto endGame(@PathVariable("gameId") Long gameId,
                             HttpServletRequest request) {
-    return gameService.endGame(getUserHash(request), gameId);
+    return gameService.endGame(authenticationService.getUserHash(request), gameId);
   }
 
   @GetMapping("/supported-languages")
