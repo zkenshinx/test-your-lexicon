@@ -33,7 +33,9 @@ public class GameController {
   public AnswerResponseDto answer(@PathVariable("gameId") Long gameId,
                                   @RequestBody AnswerRequestDto answerRequestDto,
                                   HttpServletRequest request) {
-    return gameService.userActiveGameAnswer(authenticationService.getUserHash(request), answerRequestDto, gameId);
+    return gameService.userActiveGameAnswer(authenticationService.getUserHash(request),
+                                            answerRequestDto,
+                                            gameId);
   }
 
   @GetMapping("/supported-languages")
