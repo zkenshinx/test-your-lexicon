@@ -16,7 +16,7 @@ public class Game {
   @Column(name = "game_id")
   private Long gameId;
   @Column(name = "user_hash")
-  private Long hash;
+  private Long userHash;
   @Column(name = "steps_left")
   private Integer stepsLeft;
   @Nullable

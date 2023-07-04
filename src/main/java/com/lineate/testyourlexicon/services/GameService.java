@@ -35,7 +35,7 @@ public class GameService {
       throw new IllegalArgumentException("unsupported language");
     }
 
-    gameConfiguration.setHash(userHash);
+    gameConfiguration.setUserHash(userHash);
     gameConfigurationRepository.save(gameConfiguration);
 
     return GameMapper.gameConfigurationToGameConfigurationDto(gameConfiguration);
@@ -46,7 +46,7 @@ public class GameService {
         .orElseGet(() -> {
           GameConfiguration defaultConfiguration =
               GameUtil.defaultGameConfiguration();
-          defaultConfiguration.setHash(userHash);
+          defaultConfiguration.setUserHash(userHash);
           gameConfigurationRepository.save(defaultConfiguration);
           return defaultConfiguration;
         });
@@ -60,7 +60,7 @@ public class GameService {
   public GameInitializedDto initGameForUser(Long userHash) {
     checkIfGameActiveForUser(userHash);
     Game game = new Game();
-    game.setHash(userHash);
+    game.setUserHash(userHash);
     game.setStepsLeft(userConfiguration(userHash).getNumberOfSteps());
     gameRepository.save(game);
     log.info("Initialized new game for user {'user_hash': {}, 'game_id': {}}",
@@ -161,7 +161,7 @@ public class GameService {
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       return new GeneralMessageException("Game id not valid");
     });
-    if (!game.getHash().equals(userHash)) {
+    if (!game.getUserHash().equals(userHash)) {
       log.info("User tried to access game that didn't belong to him "
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Given game doesn't belong to the user");

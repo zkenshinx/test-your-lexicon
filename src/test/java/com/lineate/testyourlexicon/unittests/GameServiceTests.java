@@ -110,7 +110,7 @@ public class GameServiceTests {
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
-    game.setHash(userHash);
+    game.setUserHash(userHash);
     game.setStepsLeft(10);
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
@@ -135,7 +135,7 @@ public class GameServiceTests {
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
-    game.setHash(userHash);
+    game.setUserHash(userHash);
     game.setStepsLeft(10);
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))

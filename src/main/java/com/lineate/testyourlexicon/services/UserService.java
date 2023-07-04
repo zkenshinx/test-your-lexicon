@@ -46,7 +46,7 @@ public class UserService {
     }
 
     GameConfiguration defaultGameConfiguration = GameUtil.defaultGameConfiguration();
-    defaultGameConfiguration.setHash(Hash.hashToLong(registeredUser.getId()));
+    defaultGameConfiguration.setUserHash(Hash.hashToLong(registeredUser.getId()));
     gameConfigurationRepository.save(defaultGameConfiguration);
 
     logUserRegistration(userRegistrationDto);
