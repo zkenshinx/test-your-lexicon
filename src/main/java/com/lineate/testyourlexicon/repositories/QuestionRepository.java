@@ -9,4 +9,6 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
 
   boolean existsByGameAndTranslationId(Game game, Long translationId);
 
+  int countByGameAndGuessedIsTrue(Game game);
+
 }
