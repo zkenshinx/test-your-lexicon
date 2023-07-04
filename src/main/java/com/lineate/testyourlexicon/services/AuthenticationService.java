@@ -36,8 +36,7 @@ public class AuthenticationService {
 
   public Long getUserHash(HttpServletRequest request) {
     if (isAuthenticated()) {
-      Long id = userRepository.findUserByEmail(getAuthenticatedUserEmail())
-        .get().getId();
+      Long id = getAuthenticatedUser().get().getId();
       return Hash.hashToLong(id);
     }
     return Hash.hashToLong(request.getSession().getId());
