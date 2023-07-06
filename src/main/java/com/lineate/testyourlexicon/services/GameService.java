@@ -149,6 +149,7 @@ public class GameService {
       .build();
   }
 
+  @Transactional
   public GameEndDto endGame(Long userHash, Long gameId) {
     Game game = validateGameForUser(userHash, gameId);
     game.setStepsLeft(0);
