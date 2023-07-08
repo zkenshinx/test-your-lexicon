@@ -24,9 +24,6 @@ public class User {
   private String email;
   @Column(name = "password")
   private String hashedPassword;
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-  @PrimaryKeyJoinColumn
-  private GameConfiguration gameConfiguration;
   @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinTable(
       name = "user_roles",

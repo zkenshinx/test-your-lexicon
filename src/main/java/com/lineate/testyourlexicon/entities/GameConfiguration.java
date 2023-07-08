@@ -1,8 +1,6 @@
 package com.lineate.testyourlexicon.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import lombok.*;
 
 @Entity
@@ -15,8 +13,8 @@ import lombok.*;
 public class GameConfiguration {
 
   @Id
-  @Column(name = "user_id")
-  private Long id;
+  @Column(name = "user_hash")
+  private Long userHash;
   @Column(name = "translate_from")
   private String translateFrom;
   @Column(name = "translate_to")
@@ -27,8 +25,5 @@ public class GameConfiguration {
   private Integer stepTimeInSeconds;
   @Column(name = "answer_count")
   private Integer answerCount;
-  @OneToOne
-  @MapsId
-  @JoinColumn(name = "user_id")
-  private User user;
+
 }
