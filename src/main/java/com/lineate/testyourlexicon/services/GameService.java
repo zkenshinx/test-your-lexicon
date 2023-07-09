@@ -118,6 +118,7 @@ public class GameService {
     final Game updatedGame = updateGameCurrentQuestion(game, questionEntity);
     log.info("Generated step {'user_hash': {}, 'game_id': {}, 'question_id': {}}",
         userHash, updatedGame.getGameId(), questionEntity.getId());
+    startStepTimeout(gameId, gameConfiguration.getStepTimeInSeconds());
     return new StepDto(question, gameId);
   }
 
