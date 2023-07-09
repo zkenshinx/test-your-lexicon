@@ -4,14 +4,11 @@ import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
-import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.GeneralMessageException;
 import com.lineate.testyourlexicon.models.Question;
-import com.lineate.testyourlexicon.repositories.GameRepository;
-import com.lineate.testyourlexicon.repositories.QuestionRepository;
-import com.lineate.testyourlexicon.repositories.TranslationRepository;
-import com.lineate.testyourlexicon.repositories.UserRepository;
+import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.util.GameMapper;
+import com.lineate.testyourlexicon.util.GameUtil;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +21,14 @@ import redis.clients.jedis.Jedis;
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
-  private final UserRepository userRepository;
+  private final GameConfigurationRepository gameConfigurationRepository;
   private final TranslationService translationService;
   private final TranslationRepository translationRepository;
   private final GameRepository gameRepository;
   private final QuestionRepository questionRepository;
   private final Jedis jedis;
 
-  public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto, User user) {
+  public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto, Long userHash) {
     GameConfiguration gameConfiguration =
         GameMapper.gameConfigurationDtoToGameConfiguration(gameConfigurationDto);
     List<String> supportedLanguages = translationService.supportedLanguages();
@@ -40,30 +37,36 @@ public class GameService {
       throw new IllegalArgumentException("unsupported language");
     }
 
-    gameConfiguration.setId(user.getId());
-    user.setGameConfiguration(gameConfiguration);
-    gameConfiguration.setUser(user);
-    userRepository.save(user);
+    gameConfiguration.setUserHash(userHash);
+    gameConfigurationRepository.save(gameConfiguration);
 
     return GameMapper.gameConfigurationToGameConfigurationDto(gameConfiguration);
   }
 
-  public GameConfigurationDto userConfiguration(User user) {
-    return GameMapper.gameConfigurationToGameConfigurationDto(user.getGameConfiguration());
+  public GameConfigurationDto userConfiguration(Long userHash) {
+    GameConfiguration gameConfiguration = gameConfigurationRepository.findById(userHash)
+        .orElseGet(() -> {
+          GameConfiguration defaultConfiguration =
+              GameUtil.defaultGameConfiguration();
+          defaultConfiguration.setUserHash(userHash);
+          gameConfigurationRepository.save(defaultConfiguration);
+          return defaultConfiguration;
+        });
+    return GameMapper.gameConfigurationToGameConfigurationDto(gameConfiguration);
   }
 
   public SupportedLanguagesDto supportedLanguages() {
     return new SupportedLanguagesDto(translationService.supportedLanguages());
   }
 
-  public GameInitializedDto initGameForUser(User user) {
-    checkIfGameActiveForUser(user);
+  public GameInitializedDto initGameForUser(Long userHash) {
+    checkIfGameActiveForUser(userHash);
     Game game = new Game();
-    game.setUser(user);
-    game.setStepsLeft(user.getGameConfiguration().getNumberOfSteps());
+    game.setUserHash(userHash);
+    game.setStepsLeft(userConfiguration(userHash).getNumberOfSteps());
     gameRepository.save(game);
-    log.info("Initialized new game for user {'user': {}, 'game_id': {}}",
-        user.getId(), game.getGameId());
+    log.info("Initialized new game for user {'user_hash': {}, 'game_id': {}}",
+        userHash, game.getGameId());
     return new GameInitializedDto(game.getGameId());
   }
 
@@ -105,14 +108,16 @@ public class GameService {
     }
   }
 
-  public StepDto userActiveGameNextStep(User user, long gameId) {
-    Game game = validateGameForUser(user, gameId);
-    Question question = generateRandomQuestion(user.getGameConfiguration(), game);
+  public StepDto userActiveGameNextStep(Long userHash, long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+
+    GameConfiguration gameConfiguration =
+        GameMapper.gameConfigurationDtoToGameConfiguration(userConfiguration(userHash));
+    Question question = generateRandomQuestion(gameConfiguration, game);
     QuestionEntity questionEntity = saveQuestionInDatabase(question, game);
     final Game updatedGame = updateGameCurrentQuestion(game, questionEntity);
-    log.info("Generated step {'user': {}, 'game_id': {}, 'question_id': {}}",
-        user.getId(), updatedGame.getGameId(), questionEntity.getId());
-    startStepTimeout(gameId, user.getGameConfiguration().getStepTimeInSeconds());
+    log.info("Generated step {'user_hash': {}, 'game_id': {}, 'question_id': {}}",
+        userHash, updatedGame.getGameId(), questionEntity.getId());
     return new StepDto(question, gameId);
   }
 
@@ -129,17 +134,17 @@ public class GameService {
   }
 
   @Transactional
-  public AnswerResponseDto userActiveGameAnswer(User user,
+  public AnswerResponseDto userActiveGameAnswer(Long userHash,
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
-    Game game = validateGameForUser(user, gameId);
+    Game game = validateGameForUser(userHash, gameId);
     // Check if game isn't timed out
     checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
 
     // Get correct answer
     Long translationId = questionEntity.getTranslationId();
-    String language = user.getGameConfiguration().getTranslateTo();
+    String language = userConfiguration(userHash).getTranslateTo();
     String correctAnswer =
          translationRepository.languageDefinitionGivenIdAndLanguage(translationId, language);
 
@@ -151,8 +156,8 @@ public class GameService {
     }
     game.setCurrentQuestionId(null);
     gameRepository.save(game);
-    log.info("User answered a step {'user': {}, 'game_id': {}, 'question': {}}",
-        user.getId(), game.getGameId(), questionEntity.getId());
+    log.info("User answered a step {'user_hash': {}, 'game_id': {}, 'question': {}}",
+        userHash, game.getGameId(), questionEntity.getId());
     return AnswerResponseDto.builder()
       .guessed(guessed)
       .correctAnswer(correctAnswer)
@@ -160,26 +165,26 @@ public class GameService {
       .build();
   }
 
-  private void checkIfGameActiveForUser(User user) {
-    if (gameRepository.getUserActiveGame(user).isPresent()) {
+  private void checkIfGameActiveForUser(Long userHash) {
+    if (gameRepository.getUserActiveGame(userHash).isPresent()) {
       throw new GeneralMessageException("A game is already started for the user");
     }
   }
 
-  private Game validateGameForUser(User user, Long gameId) {
+  private Game validateGameForUser(Long userHash, Long gameId) {
     Game game = gameRepository.findById(gameId).orElseThrow(() -> {
       log.info("User tried to access game with invalid id "
-          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+          + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       return new GeneralMessageException("Game id not valid");
     });
-    if (!game.getUser().equals(user)) {
+    if (!game.getUserHash().equals(userHash)) {
       log.info("User tried to access game that didn't belong to him "
-          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+          + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Given game doesn't belong to the user");
     }
     if (game.getStepsLeft() <= 0) {
       log.info("User tried to access game that was finished "
-          + "{'user': {}, 'game_id': {}}", user.getId(), gameId);
+          + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Game has already finished");
     }
     return game;

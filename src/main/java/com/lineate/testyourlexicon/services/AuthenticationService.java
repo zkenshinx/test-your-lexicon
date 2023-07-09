@@ -2,6 +2,8 @@ package com.lineate.testyourlexicon.services;
 
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.repositories.UserRepository;
+import com.lineate.testyourlexicon.util.Hash;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -29,5 +31,13 @@ public class AuthenticationService {
   public Optional<User> getAuthenticatedUser() {
     String email = this.getAuthenticatedUserEmail();
     return userRepository.findUserByEmail(email);
+  }
+
+  public Long getUserHash(HttpServletRequest request) {
+    if (isAuthenticated()) {
+      Long id = getAuthenticatedUser().get().getId();
+      return Hash.hashToLong(id);
+    }
+    return Hash.hashToLong(request.getSession().getId());
   }
 }

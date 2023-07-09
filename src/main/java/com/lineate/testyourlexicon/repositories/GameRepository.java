@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-  public Optional<Game> getGameByUserAndStepsLeftGreaterThan(User user, Integer stepsLeft);
+  Optional<Game> getGameByUserHashAndStepsLeftGreaterThan(Long userHash, Integer stepsLeft);
 
-  public default Optional<Game> getUserActiveGame(User user) {
-    return getGameByUserAndStepsLeftGreaterThan(user, 0);
+  public default Optional<Game> getUserActiveGame(Long userHash) {
+    return getGameByUserHashAndStepsLeftGreaterThan(userHash, 0);
   }
 }
