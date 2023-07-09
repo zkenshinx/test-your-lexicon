@@ -98,6 +98,7 @@ public class GameService {
 
   public void startStepTimeout(long gameId, int time) {
     String redisKey = String.format("game_id:step:%d", gameId);
+    System.out.println(jedis);
     jedis.setex(redisKey, time, "");
   }
 
