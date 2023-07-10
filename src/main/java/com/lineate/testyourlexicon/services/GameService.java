@@ -1,5 +1,6 @@
 package com.lineate.testyourlexicon.services;
 
+import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
