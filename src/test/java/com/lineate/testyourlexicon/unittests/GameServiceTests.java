@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,7 @@ public class GameServiceTests {
   private TranslationRepository translationRepository;
   private GameRepository gameRepository;
   private QuestionRepository questionRepository;
+  private Jedis jedis;
 
   @BeforeEach
   public void setUp() {
@@ -36,9 +38,10 @@ public class GameServiceTests {
     translationRepository = mock(TranslationRepository.class);
     questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
+    jedis = mock(Jedis.class);
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
     gameService = new GameService(gameConfigurationRepository, translationService,
-      translationRepository, gameRepository, questionRepository);
+      translationRepository, gameRepository, questionRepository, jedis);
   }
 
   @Test
@@ -107,6 +110,7 @@ public class GameServiceTests {
   public void whenUserAnswersCorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
+    when(jedis.exists(any(String.class))).thenReturn(true);
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
@@ -132,6 +136,7 @@ public class GameServiceTests {
   public void whenUserAnswersIncorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
+    when(jedis.exists(any(String.class))).thenReturn(true);
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);

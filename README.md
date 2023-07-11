@@ -9,7 +9,7 @@ of suggested words.
 * Lombok
 * Checkstyle
 * Flyway
-* PostgreSQL
+* Redis, Jedis
 * Data JPA, Hibernate
 * Swagger
 
