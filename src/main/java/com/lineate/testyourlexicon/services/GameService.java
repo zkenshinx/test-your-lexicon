@@ -149,6 +149,21 @@ public class GameService {
       .build();
   }
 
+  @Transactional
+  public GameEndDto endGame(Long userHash, Long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+    game.setStepsLeft(0);
+    gameRepository.save(game);
+    int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
+    int stepCount = userConfiguration(userHash).getNumberOfSteps();
+    log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
+      userHash, game.getGameId());
+    return GameEndDto.builder()
+      .stepCount(stepCount)
+      .correctlyAnswered(correctlyAnswered)
+      .build();
+  }
+
   private void checkIfGameActiveForUser(Long userHash) {
     if (gameRepository.getUserActiveGame(userHash).isPresent()) {
       throw new GeneralMessageException("A game is already started for the user");
