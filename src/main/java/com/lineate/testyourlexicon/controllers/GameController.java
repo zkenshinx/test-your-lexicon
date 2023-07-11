@@ -55,7 +55,7 @@ public class GameController {
   }
 
   @GetMapping("/statistics")
-  public QuestionDto statistics(HttpServletRequest request) {
+  public StatisticsDto statistics(HttpServletRequest request) {
     return gameService.getUserStatistics(authenticationService.getUserHash(request));
   }
 

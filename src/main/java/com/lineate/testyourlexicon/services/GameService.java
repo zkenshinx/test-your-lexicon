@@ -188,23 +188,23 @@ public class GameService {
     userStatisticsRepository.save(userStatistics);
   }
 
-  public QuestionDto getUserStatistics(Long userHash) {
+  public StatisticsDto getUserStatistics(Long userHash) {
     UserStatistics userStatistics = userStatisticsRepository
         .findById(userHash).orElseGet(() ->
           new UserStatistics(userHash)
         );
-    QuestionDto questionDto = new QuestionDto();
-    questionDto.setQuestionsAnswered(userStatistics.getQuestionsAnswered());
-    questionDto.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered());
+    StatisticsDto statisticsDto = new StatisticsDto();
+    statisticsDto.setQuestionsAnswered(userStatistics.getQuestionsAnswered());
+    statisticsDto.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered());
     Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
         Map.Entry.comparingByValue()).getKey();
     Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
       Map.Entry.comparingByValue()).getKey();
-    questionDto.setWordWithMostHits(
+    statisticsDto.setWordWithMostHits(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostHitsId, "english"));
-    questionDto.setWordWithMostMisses(
+    statisticsDto.setWordWithMostMisses(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostMissesId, "english"));
-    return questionDto;
+    return statisticsDto;
   }
 
   private void checkIfGameActiveForUser(Long userHash) {

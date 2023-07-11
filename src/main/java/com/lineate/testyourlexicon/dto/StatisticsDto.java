@@ -4,7 +4,7 @@ package com.lineate.testyourlexicon.dto;
 import lombok.Data;
 
 @Data
-public class QuestionDto {
+public class StatisticsDto {
 
   private int questionsAnswered;
   private int correctlyAnswered;
