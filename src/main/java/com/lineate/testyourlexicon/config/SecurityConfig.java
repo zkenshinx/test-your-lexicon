@@ -16,9 +16,9 @@ public class SecurityConfig {
     return http.csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(authz -> authz
         .requestMatchers(HttpMethod.GET,
-          "/users").hasAnyRole("ADMIN")
-        .requestMatchers("/health").authenticated()
-        .requestMatchers("/games/achievements").authenticated()
+          "/api/users").hasAnyRole("ADMIN")
+        .requestMatchers("/api/health").authenticated()
+        .requestMatchers("/api/games/achievements").authenticated()
         .anyRequest().permitAll())
       .logout(logout -> logout
         .disable())
