@@ -97,6 +97,7 @@ public class GameService {
 
   public Game updateGameCurrentQuestion(Game game, QuestionEntity questionEntity) {
     game.setCurrentQuestionId(questionEntity.getId());
+    game.setStepsLeft(game.getStepsLeft() - 1);
     return gameRepository.save(game);
   }
 
