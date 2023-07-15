@@ -27,6 +27,7 @@ import redis.clients.jedis.Jedis;
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
+  private final AuthenticationService authenticationService;
   private final AchievementManager achievementManager;
   private final GameConfigurationRepository gameConfigurationRepository;
   private final TranslationService translationService;
@@ -150,9 +151,6 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(userHash, gameId);
-    if (game.getStepsLeft() == 0) {
-      throw new GeneralMessageException("No more steps left for the game! finish the game!");
-    }
     // Check if game isn't timed out
     checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
@@ -192,7 +190,9 @@ public class GameService {
     int stepCount = userConfiguration(userHash).getNumberOfSteps();
     log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
         userHash, game.getGameId());
-    achievementManager.checkAchievements(userHash);
+    if (authenticationService.isAuthenticated()) {
+      achievementManager.checkAchievements(userHash);
+    }
     return GameEndDto.builder()
       .stepCount(stepCount)
       .correctlyAnswered(correctlyAnswered)
@@ -265,5 +265,25 @@ public class GameService {
         .description(achievement.getDescription())
         .build())
       .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public CorrectAnswerDto getCorrectAnswer(Long userHash, long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+    QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
+
+    // Get correct answer
+    Long translationId = questionEntity.getTranslationId();
+    String language = userConfiguration(userHash).getTranslateTo();
+    String correctAnswer =
+      translationRepository.languageDefinitionGivenIdAndLanguage(translationId, language);
+
+    CorrectAnswerDto correctAnswerDto = new CorrectAnswerDto();
+    correctAnswerDto.setAnswer(correctAnswer);
+
+    game.setCurrentQuestionId(null);
+    gameRepository.save(game);
+
+    return correctAnswerDto;
   }
 }

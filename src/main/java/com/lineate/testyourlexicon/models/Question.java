@@ -18,7 +18,7 @@ public class Question {
   @JsonProperty("word")
   private String word;
 
-  @JsonProperty("answer_options")
+  @JsonProperty("answerOptions")
   private List<String> answerOptions;
 
   public void addAnswer(String answer) {

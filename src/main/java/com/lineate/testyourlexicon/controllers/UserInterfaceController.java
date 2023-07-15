@@ -16,4 +16,8 @@ public class UserInterfaceController {
     return "signup.html";
   }
 
+  @GetMapping("/")
+  public String game() {
+    return "home.html";
+  }
 }

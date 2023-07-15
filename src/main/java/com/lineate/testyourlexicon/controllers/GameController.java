@@ -39,6 +39,13 @@ public class GameController {
                                             gameId);
   }
 
+  @GetMapping("/{gameId}/solution")
+  public CorrectAnswerDto answer(@PathVariable("gameId") Long gameId,
+                                 HttpServletRequest request) {
+    return gameService.getCorrectAnswer(authenticationService.getUserHash(request),
+      gameId);
+  }
+
   @PostMapping("/{gameId}/end")
   public GameEndDto endGame(@PathVariable("gameId") Long gameId,
                             HttpServletRequest request) {

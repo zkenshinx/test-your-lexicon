@@ -1,0 +1,36 @@
+.option {
+    cursor: pointer;
+    font-size: 20px;
+    width: 90%;
+    padding: 1em;
+    margin: 7px auto;
+    text-align: left;
+    outline: none;
+    background: transparent;
+    border: 1px solid #c0bfd2;
+    border-radius: 0.3em;
+}
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 40px;
+}
+
+.incorrect {
+    background-color: #ffdde0;
+    color: #d32f2f;
+    border-color: #d32f2f;
+}
+
+.correct {
+    background-color: #e7f6d5;
+    color: #689f38;
+    border-color: #689f38;
+}
+
+.question {
+    font-size: 30px;
+    text-align: center;
+    padding-bottom: 15px;
+}
