@@ -10,9 +10,9 @@ public class AnswerResponseDto {
 
   @JsonProperty("guessed")
   private boolean guessed;
-  @JsonProperty("correct_answer")
+  @JsonProperty("correctAnswer")
   private String correctAnswer;
-  @JsonProperty("user_answer")
+  @JsonProperty("userAnswer")
   private String userAnswer;
 
 }

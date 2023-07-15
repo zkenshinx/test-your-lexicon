@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class GameInitializedDto {
 
-  @JsonProperty("game_id")
+  @JsonProperty("gameId")
   private Long gameId;
 
 }
