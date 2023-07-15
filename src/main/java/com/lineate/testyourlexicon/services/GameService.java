@@ -97,6 +97,7 @@ public class GameService {
 
   public Game updateGameCurrentQuestion(Game game, QuestionEntity questionEntity) {
     game.setCurrentQuestionId(questionEntity.getId());
+    game.setStepsLeft(game.getStepsLeft() - 1);
     return gameRepository.save(game);
   }
 
@@ -173,6 +174,21 @@ public class GameService {
       .build();
   }
 
+  @Transactional
+  public GameEndDto endGame(Long userHash, Long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+    game.setStepsLeft(0);
+    gameRepository.save(game);
+    int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
+    int stepCount = userConfiguration(userHash).getNumberOfSteps();
+    log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
+      userHash, game.getGameId());
+    return GameEndDto.builder()
+      .stepCount(stepCount)
+      .correctlyAnswered(correctlyAnswered)
+      .build();
+  }
+  
   public void updateStatistics(Long userHash, Long translationId, boolean guessed) {
     UserStatistics userStatistics = userStatisticsRepository
         .findById(userHash).orElseGet(() ->
