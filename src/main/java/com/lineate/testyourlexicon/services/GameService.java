@@ -12,7 +12,6 @@ import com.lineate.testyourlexicon.models.UserStatistics;
 import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.util.GameMapper;
 import com.lineate.testyourlexicon.util.GameUtil;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import redis.clients.jedis.Jedis;
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
+  private final AchievementManager achievementManager;
   private final GameConfigurationRepository gameConfigurationRepository;
   private final TranslationService translationService;
   private final TranslationRepository translationRepository;
@@ -100,6 +100,7 @@ public class GameService {
 
   public Game updateGameCurrentQuestion(Game game, QuestionEntity questionEntity) {
     game.setCurrentQuestionId(questionEntity.getId());
+    game.setStepsLeft(game.getStepsLeft() - 1);
     return gameRepository.save(game);
   }
 
@@ -117,6 +118,9 @@ public class GameService {
 
   public StepDto userActiveGameNextStep(Long userHash, long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    if (game.getStepsLeft() == 0) {
+      throw new GeneralMessageException("No more steps left for the game! finish the game!");
+    }
 
     GameConfiguration gameConfiguration =
         GameMapper.gameConfigurationDtoToGameConfiguration(userConfiguration(userHash));
@@ -146,6 +150,9 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    if (game.getStepsLeft() == 0) {
+      throw new GeneralMessageException("No more steps left for the game! finish the game!");
+    }
     // Check if game isn't timed out
     checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
@@ -163,7 +170,6 @@ public class GameService {
       questionRepository.save(questionEntity);
     }
     game.setCurrentQuestionId(null);
-    game.setStepsLeft(game.getStepsLeft() - 1);
     gameRepository.save(game);
 
     updateStatistics(userHash, translationId, guessed);
@@ -176,6 +182,22 @@ public class GameService {
       .build();
   }
 
+  @Transactional
+  public GameEndDto endGame(Long userHash, Long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+    game.setFinished(true);
+    gameRepository.save(game);
+    int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
+    int stepCount = userConfiguration(userHash).getNumberOfSteps();
+    log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
+        userHash, game.getGameId());
+    achievementManager.checkAchievements(userHash);
+    return GameEndDto.builder()
+      .stepCount(stepCount)
+      .correctlyAnswered(correctlyAnswered)
+      .build();
+  }
+  
   public void updateStatistics(Long userHash, Long translationId, boolean guessed) {
     UserStatistics userStatistics = userStatisticsRepository
         .findById(userHash).orElseGet(() ->
@@ -202,7 +224,7 @@ public class GameService {
     Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
         Map.Entry.comparingByValue()).getKey();
     Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
-      Map.Entry.comparingByValue()).getKey();
+        Map.Entry.comparingByValue()).getKey();
     statisticsDto.setWordWithMostHits(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostHitsId, "english"));
     statisticsDto.setWordWithMostMisses(
@@ -227,7 +249,7 @@ public class GameService {
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Given game doesn't belong to the user");
     }
-    if (game.getStepsLeft() <= 0) {
+    if (Boolean.TRUE.equals(game.getFinished())) {
       log.info("User tried to access game that was finished "
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Game has already finished");

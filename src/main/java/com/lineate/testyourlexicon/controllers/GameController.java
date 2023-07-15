@@ -39,6 +39,12 @@ public class GameController {
                                             gameId);
   }
 
+  @PostMapping("/{gameId}/end")
+  public GameEndDto endGame(@PathVariable("gameId") Long gameId,
+                            HttpServletRequest request) {
+    return gameService.endGame(authenticationService.getUserHash(request), gameId);
+  }
+
   @GetMapping("/supported-languages")
   public SupportedLanguagesDto supportedLanguages() {
     return gameService.supportedLanguages();

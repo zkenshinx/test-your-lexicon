@@ -45,9 +45,25 @@ public class GameServiceTests {
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
     achievementManager = mock(AchievementManager.class);
     userStatisticsRepository = mock(UserStatisticsRepository.class);
-    gameService = new GameService(gameConfigurationRepository, translationService,
-      translationRepository, gameRepository, questionRepository, userStatisticsRepository,
-      jedis);
+    achievementManager = mock(AchievementManager.class);
+    gameService = new GameService(achievementManager, gameConfigurationRepository,
+      translationService, translationRepository, gameRepository, questionRepository,
+      userStatisticsRepository, jedis);
+  }
+
+  @Test
+  public void testGameEnd() {
+    // Init
+    Long userHash = 12345L;
+    Long gameId = 1222L;
+    Game game = new Game();
+    game.setGameId(gameId);
+    game.setStepsLeft(10);
+    game.setUserHash(userHash);
+    when(gameRepository.findById(any())).thenReturn(Optional.of(game));
+    // Test
+    gameService.endGame(userHash, gameId);
+    assertThat(game.getStepsLeft()).isEqualTo(0);
   }
 
   @Test

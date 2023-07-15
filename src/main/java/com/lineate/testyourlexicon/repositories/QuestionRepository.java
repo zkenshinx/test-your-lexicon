@@ -15,4 +15,6 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
       + "WHERE q.game.userHash = :userHash")
   int countNumberOfQuestionsAnsweredByUser(Long userHash);
 
+  int countByGameAndGuessedIsTrue(Game game);
+
 }
