@@ -1,6 +1,7 @@
 package com.lineate.testyourlexicon.unittests;
 
 
+import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 
 public class GameServiceTests {
 
+  private AchievementManager achievementManager;
   private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
   private TranslationService translationService;
@@ -41,10 +43,12 @@ public class GameServiceTests {
     gameRepository = mock(GameRepository.class);
     jedis = mock(Jedis.class);
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
+    achievementManager = mock(AchievementManager.class);
     userStatisticsRepository = mock(UserStatisticsRepository.class);
-    gameService = new GameService(gameConfigurationRepository, translationService,
-      translationRepository, gameRepository, questionRepository, userStatisticsRepository,
-      jedis);
+    achievementManager = mock(AchievementManager.class);
+    gameService = new GameService(achievementManager, gameConfigurationRepository,
+      translationService, translationRepository, gameRepository, questionRepository,
+      userStatisticsRepository, jedis);
   }
 
   @Test
@@ -109,22 +113,6 @@ public class GameServiceTests {
   }
 
   @Test
-  public void whenUpdatingGameWithNewQuestion_GameStepsLeftDecrement() {
-    when(questionRepository.save(any()))
-      .thenAnswer(new Answer<Game>() {
-
-        @Override
-        public Game answer(InvocationOnMock invocationOnMock) throws Throwable {
-          return (Game) invocationOnMock.getArgument(0);
-        }
-      });
-    Game game = new Game();
-    game.setStepsLeft(10);
-    gameService.updateGameCurrentQuestion(game, new QuestionEntity());
-    assertThat(game.getStepsLeft()).isEqualTo(9);
-  }
-
-  @Test
   public void whenUserAnswersCorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
@@ -137,8 +125,10 @@ public class GameServiceTests {
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
       .thenReturn(Optional.of(game));
+    QuestionEntity questionEntity = new QuestionEntity();
+    questionEntity.setTranslationId(123456L);
     when(questionRepository.findById(any()))
-      .thenReturn(Optional.of(new QuestionEntity()));
+      .thenReturn(Optional.of(questionEntity));
     AnswerRequestDto answerRequestDto = new AnswerRequestDto();
     answerRequestDto.setAnswer("correct");
 
@@ -163,8 +153,10 @@ public class GameServiceTests {
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
       .thenReturn(Optional.of(game));
+    QuestionEntity questionEntity = new QuestionEntity();
+    questionEntity.setTranslationId(123456L);
     when(questionRepository.findById(any()))
-      .thenReturn(Optional.of(new QuestionEntity()));
+      .thenReturn(Optional.of(questionEntity));
     AnswerRequestDto answerRequestDto = new AnswerRequestDto();
     answerRequestDto.setAnswer("incorrect");
 

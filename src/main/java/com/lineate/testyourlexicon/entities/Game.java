@@ -22,5 +22,7 @@ public class Game {
   @Nullable
   @Column(name = "current_question")
   private Long currentQuestionId;
+  @Column(name = "finished")
+  private Boolean finished;
 
 }

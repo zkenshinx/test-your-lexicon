@@ -1,20 +1,22 @@
 package com.lineate.testyourlexicon.services;
 
+import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.GameConfiguration;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
+import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.GeneralMessageException;
 import com.lineate.testyourlexicon.models.Question;
 import com.lineate.testyourlexicon.models.UserStatistics;
 import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.util.GameMapper;
 import com.lineate.testyourlexicon.util.GameUtil;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import redis.clients.jedis.Jedis;
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
+  private final AchievementManager achievementManager;
   private final GameConfigurationRepository gameConfigurationRepository;
   private final TranslationService translationService;
   private final TranslationRepository translationRepository;
@@ -115,6 +118,9 @@ public class GameService {
 
   public StepDto userActiveGameNextStep(Long userHash, long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    if (game.getStepsLeft() == 0) {
+      throw new GeneralMessageException("No more steps left for the game! finish the game!");
+    }
 
     GameConfiguration gameConfiguration =
         GameMapper.gameConfigurationDtoToGameConfiguration(userConfiguration(userHash));
@@ -144,6 +150,9 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    if (game.getStepsLeft() == 0) {
+      throw new GeneralMessageException("No more steps left for the game! finish the game!");
+    }
     // Check if game isn't timed out
     checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
@@ -161,7 +170,6 @@ public class GameService {
       questionRepository.save(questionEntity);
     }
     game.setCurrentQuestionId(null);
-    game.setStepsLeft(game.getStepsLeft() - 1);
     gameRepository.save(game);
 
     updateStatistics(userHash, translationId, guessed);
@@ -177,12 +185,13 @@ public class GameService {
   @Transactional
   public GameEndDto endGame(Long userHash, Long gameId) {
     Game game = validateGameForUser(userHash, gameId);
-    game.setStepsLeft(0);
+    game.setFinished(true);
     gameRepository.save(game);
     int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
     int stepCount = userConfiguration(userHash).getNumberOfSteps();
     log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
-      userHash, game.getGameId());
+        userHash, game.getGameId());
+    achievementManager.checkAchievements(userHash);
     return GameEndDto.builder()
       .stepCount(stepCount)
       .correctlyAnswered(correctlyAnswered)
@@ -215,7 +224,7 @@ public class GameService {
     Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
         Map.Entry.comparingByValue()).getKey();
     Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
-      Map.Entry.comparingByValue()).getKey();
+        Map.Entry.comparingByValue()).getKey();
     statisticsDto.setWordWithMostHits(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostHitsId, "english"));
     statisticsDto.setWordWithMostMisses(
@@ -240,11 +249,20 @@ public class GameService {
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Given game doesn't belong to the user");
     }
-    if (game.getStepsLeft() <= 0) {
+    if (Boolean.TRUE.equals(game.getFinished())) {
       log.info("User tried to access game that was finished "
           + "{'user_hash': {}, 'game_id': {}}", userHash, gameId);
       throw new GeneralMessageException("Game has already finished");
     }
     return game;
+  }
+
+  public List<AchievementDto> getAchievements(User user) {
+    return user.getAchievements().stream()
+      .map(achievement -> AchievementDto.builder()
+        .name(achievement.getName())
+        .description(achievement.getDescription())
+        .build())
+      .collect(Collectors.toList());
   }
 }

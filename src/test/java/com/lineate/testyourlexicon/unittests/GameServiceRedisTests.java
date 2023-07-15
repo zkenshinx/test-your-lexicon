@@ -1,5 +1,6 @@
 package com.lineate.testyourlexicon.unittests;
 
+import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.config.TestRedisConfiguration;
 import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.services.GameService;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.mock;
 public class GameServiceRedisTests {
 
 
+  private AchievementManager achievementManager;
   private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
   private TranslationService translationService;
@@ -37,9 +39,10 @@ public class GameServiceRedisTests {
     gameRepository = mock(GameRepository.class);
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
     userStatisticsRepository = mock(UserStatisticsRepository.class);
-    gameService = new GameService(gameConfigurationRepository, translationService,
-      translationRepository, gameRepository, questionRepository, userStatisticsRepository,
-      jedis);
+    achievementManager = mock(AchievementManager.class);
+    gameService = new GameService(achievementManager, gameConfigurationRepository,
+      translationService, translationRepository, gameRepository, questionRepository,
+      userStatisticsRepository, jedis);
   }
 
   @Test

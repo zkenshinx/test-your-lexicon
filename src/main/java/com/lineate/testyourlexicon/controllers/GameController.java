@@ -5,8 +5,10 @@ import com.lineate.testyourlexicon.services.AuthenticationService;
 import com.lineate.testyourlexicon.services.GameService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
@@ -58,6 +60,11 @@ public class GameController {
   @GetMapping("/configuration")
   public GameConfigurationDto configuration(HttpServletRequest request) {
     return gameService.userConfiguration(authenticationService.getUserHash(request));
+  }
+
+  @GetMapping("/achievements")
+  public List<AchievementDto> achievements() {
+    return gameService.getAchievements(authenticationService.getAuthenticatedUser().get());
   }
 
   @GetMapping("/statistics")
