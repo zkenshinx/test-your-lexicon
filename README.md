@@ -9,8 +9,9 @@ of suggested words.
 * Lombok
 * Checkstyle
 * Flyway
-* PostgreSQL
+* Redis, Jedis
 * Data JPA, Hibernate
+* Swagger
 
 ## Prerequisities
 
@@ -35,4 +36,15 @@ mvn clean flyway:migrate
 Run checkstyle:
 ```
 mvn checkstyle:checkstyle
+```
+
+## Endpoints
+You can use swagger to check out all the endpoint info.
+Run the application and use  
+```
+GET /v3/api-docs
+```
+or you can use UI interface:
+```
+GET /swagger-ui.html 
 ```

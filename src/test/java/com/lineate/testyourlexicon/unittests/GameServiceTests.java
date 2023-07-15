@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,8 @@ public class GameServiceTests {
   private TranslationRepository translationRepository;
   private GameRepository gameRepository;
   private QuestionRepository questionRepository;
+  private UserStatisticsRepository userStatisticsRepository;
+  private Jedis jedis;
 
   @BeforeEach
   public void setUp() {
@@ -38,10 +41,13 @@ public class GameServiceTests {
     translationRepository = mock(TranslationRepository.class);
     questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
+    jedis = mock(Jedis.class);
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
     achievementManager = mock(AchievementManager.class);
-    gameService = new GameService(achievementManager, gameConfigurationRepository,
-      translationService, translationRepository, gameRepository, questionRepository);
+    userStatisticsRepository = mock(UserStatisticsRepository.class);
+    gameService = new GameService(gameConfigurationRepository, translationService,
+      translationRepository, gameRepository, questionRepository, userStatisticsRepository,
+      jedis);
   }
 
   @Test
@@ -91,25 +97,10 @@ public class GameServiceTests {
   }
 
   @Test
-  public void whenUpdatingGameWithNewQuestion_GameStepsLeftDecrement() {
-    when(questionRepository.save(any()))
-      .thenAnswer(new Answer<Game>() {
-
-        @Override
-        public Game answer(InvocationOnMock invocationOnMock) throws Throwable {
-          return (Game) invocationOnMock.getArgument(0);
-        }
-      });
-    Game game = new Game();
-    game.setStepsLeft(10);
-    gameService.updateGameCurrentQuestion(game, new QuestionEntity());
-    assertThat(game.getStepsLeft()).isEqualTo(9);
-  }
-
-  @Test
   public void whenUserAnswersCorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
+    when(jedis.exists(any(String.class))).thenReturn(true);
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
@@ -118,8 +109,10 @@ public class GameServiceTests {
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
       .thenReturn(Optional.of(game));
+    QuestionEntity questionEntity = new QuestionEntity();
+    questionEntity.setTranslationId(123456L);
     when(questionRepository.findById(any()))
-      .thenReturn(Optional.of(new QuestionEntity()));
+      .thenReturn(Optional.of(questionEntity));
     AnswerRequestDto answerRequestDto = new AnswerRequestDto();
     answerRequestDto.setAnswer("correct");
 
@@ -135,6 +128,7 @@ public class GameServiceTests {
   public void whenUserAnswersIncorrectly() {
     when(translationRepository.languageDefinitionGivenIdAndLanguage(any(), any()))
       .thenReturn("correct");
+    when(jedis.exists(any(String.class))).thenReturn(true);
     Long userHash = 12345L;
     Game game = new Game();
     game.setGameId(1L);
@@ -143,8 +137,10 @@ public class GameServiceTests {
     game.setCurrentQuestionId(10L);
     when(gameRepository.findById(any()))
       .thenReturn(Optional.of(game));
+    QuestionEntity questionEntity = new QuestionEntity();
+    questionEntity.setTranslationId(123456L);
     when(questionRepository.findById(any()))
-      .thenReturn(Optional.of(new QuestionEntity()));
+      .thenReturn(Optional.of(questionEntity));
     AnswerRequestDto answerRequestDto = new AnswerRequestDto();
     answerRequestDto.setAnswer("incorrect");
 

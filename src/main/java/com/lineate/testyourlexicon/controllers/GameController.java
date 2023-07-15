@@ -60,4 +60,10 @@ public class GameController {
   public List<AchievementDto> achievements() {
     return gameService.getAchievements(authenticationService.getAuthenticatedUser().get());
   }
+
+  @GetMapping("/statistics")
+  public StatisticsDto statistics(HttpServletRequest request) {
+    return gameService.getUserStatistics(authenticationService.getUserHash(request));
+  }
+
 }

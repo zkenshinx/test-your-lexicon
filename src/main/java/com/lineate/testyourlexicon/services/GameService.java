@@ -8,16 +8,21 @@ import com.lineate.testyourlexicon.entities.QuestionEntity;
 import com.lineate.testyourlexicon.entities.User;
 import com.lineate.testyourlexicon.exceptions.GeneralMessageException;
 import com.lineate.testyourlexicon.models.Question;
+import com.lineate.testyourlexicon.models.UserStatistics;
 import com.lineate.testyourlexicon.repositories.*;
 import com.lineate.testyourlexicon.util.GameMapper;
 import com.lineate.testyourlexicon.util.GameUtil;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,8 @@ public class GameService {
   private final TranslationRepository translationRepository;
   private final GameRepository gameRepository;
   private final QuestionRepository questionRepository;
+  private final UserStatisticsRepository userStatisticsRepository;
+  private final Jedis jedis;
 
   public GameConfigurationDto configure(GameConfigurationDto gameConfigurationDto, Long userHash) {
     GameConfiguration gameConfiguration =
@@ -92,9 +99,20 @@ public class GameService {
   }
 
   public Game updateGameCurrentQuestion(Game game, QuestionEntity questionEntity) {
-    game.setStepsLeft(game.getStepsLeft() - 1);
     game.setCurrentQuestionId(questionEntity.getId());
     return gameRepository.save(game);
+  }
+
+  public void startStepTimeout(long gameId, int time) {
+    String redisKey = String.format("game_id:step:%d", gameId);
+    jedis.setex(redisKey, time, "");
+  }
+
+  public void checkTimeout(long gameId) {
+    String redisKey = String.format("game_id:step:%d", gameId);
+    if (!jedis.exists(redisKey)) {
+      throw new GeneralMessageException("Step timed out!");
+    }
   }
 
   public StepDto userActiveGameNextStep(Long userHash, long gameId) {
@@ -107,6 +125,7 @@ public class GameService {
     final Game updatedGame = updateGameCurrentQuestion(game, questionEntity);
     log.info("Generated step {'user_hash': {}, 'game_id': {}, 'question_id': {}}",
         userHash, updatedGame.getGameId(), questionEntity.getId());
+    startStepTimeout(gameId, gameConfiguration.getStepTimeInSeconds());
     return new StepDto(question, gameId);
   }
 
@@ -127,6 +146,8 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    // Check if game isn't timed out
+    checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
 
     // Get correct answer
@@ -142,7 +163,10 @@ public class GameService {
       questionRepository.save(questionEntity);
     }
     game.setCurrentQuestionId(null);
+    game.setStepsLeft(game.getStepsLeft() - 1);
     gameRepository.save(game);
+
+    updateStatistics(userHash, translationId, guessed);
     log.info("User answered a step {'user_hash': {}, 'game_id': {}, 'question': {}}",
         userHash, game.getGameId(), questionEntity.getId());
     return AnswerResponseDto.builder()
@@ -150,6 +174,40 @@ public class GameService {
       .correctAnswer(correctAnswer)
       .userAnswer(answerRequestDto.getAnswer())
       .build();
+  }
+
+  public void updateStatistics(Long userHash, Long translationId, boolean guessed) {
+    UserStatistics userStatistics = userStatisticsRepository
+        .findById(userHash).orElseGet(() ->
+          new UserStatistics(userHash)
+        );
+    userStatistics.setQuestionsAnswered(userStatistics.getQuestionsAnswered() + 1);
+    if (guessed) {
+      userStatistics.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered() + 1);
+      userStatistics.hitWord(translationId);
+    } else {
+      userStatistics.missWord(translationId);
+    }
+    userStatisticsRepository.save(userStatistics);
+  }
+
+  public StatisticsDto getUserStatistics(Long userHash) {
+    UserStatistics userStatistics = userStatisticsRepository
+        .findById(userHash).orElseGet(() ->
+          new UserStatistics(userHash)
+        );
+    StatisticsDto statisticsDto = new StatisticsDto();
+    statisticsDto.setQuestionsAnswered(userStatistics.getQuestionsAnswered());
+    statisticsDto.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered());
+    Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
+        Map.Entry.comparingByValue()).getKey();
+    Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
+      Map.Entry.comparingByValue()).getKey();
+    statisticsDto.setWordWithMostHits(
+        translationRepository.languageDefinitionGivenIdAndLanguage(mostHitsId, "english"));
+    statisticsDto.setWordWithMostMisses(
+        translationRepository.languageDefinitionGivenIdAndLanguage(mostMissesId, "english"));
+    return statisticsDto;
   }
 
   private void checkIfGameActiveForUser(Long userHash) {
