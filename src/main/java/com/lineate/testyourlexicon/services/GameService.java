@@ -185,6 +185,7 @@ public class GameService {
   @Transactional
   public GameEndDto endGame(Long userHash, Long gameId) {
     Game game = validateGameForUser(userHash, gameId);
+    game.setStepsLeft(0);
     game.setFinished(true);
     gameRepository.save(game);
     int correctlyAnswered = questionRepository.countByGameAndGuessedIsTrue(game);
