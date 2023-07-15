@@ -11,4 +11,9 @@ public class UserInterfaceController {
     return "login.html";
   }
 
+  @GetMapping("/signup")
+  public String signup() {
+    return "signup.html";
+  }
+
 }
