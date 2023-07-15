@@ -6,6 +6,8 @@ import com.lineate.testyourlexicon.models.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
 
   boolean existsByGameAndTranslationId(Game game, Long translationId);
@@ -16,5 +18,8 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
   int countNumberOfQuestionsAnsweredByUser(Long userHash);
 
   int countByGameAndGuessedIsTrue(Game game);
+
+  @Query("SELECT q FROM QuestionEntity q WHERE q.game.gameId = :gameId")
+  List<QuestionEntity> findAllByGameId(Long gameId);
 
 }

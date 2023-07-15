@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: monospace;
 }
 
 .main {
@@ -9,11 +10,6 @@
     background: url("../img/blue.jpg") no-repeat center;
     background-size: cover;
 }
-
-/*.entry-page-hidden {*/
-/*    opacity: 0;*/
-/*    pointer-events: none;*/
-/*}*/
 
 .header {
     position: fixed;
@@ -111,5 +107,47 @@
 .container {
     display: none;
     background: seagreen;
-    /*display: none;*/
 }
+
+.info-text {
+    font-size: 20px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.info-panel .btn-group {
+    display: flex;
+    justify-content: center;
+}
+
+.achievement-title {
+    margin-top: 10px;
+    border-top: 1px solid #999;
+    padding-top: 10px;
+}
+
+.achievement-list {
+
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 25px;
+}
+
+.achievement {
+    cursor: pointer;
+    font-size: 20px;
+    width: 280px;
+    padding: 1em;
+    margin: 7px auto;
+    text-align: center;
+    outline: none;
+    background: transparent;
+    border: 2px solid rgb(67, 37, 239);
+    border-radius: 0.3em;
+
+    color: rgb(67, 37, 239);
+    font-weight: 700;
+
+    transition: 0.3s;
+}
+

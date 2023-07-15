@@ -1,5 +1,5 @@
 const startButton = document.querySelector('.start-btn')
-const popupInfo = document.querySelector('.popup-info')
+const configurationPanel = document.querySelector('.popup-info')
 const exitButton = document.querySelector('.exit-btn')
 const playButton = document.querySelector('.play-btn')
 const main = document.querySelector('main')
@@ -8,11 +8,14 @@ const entryPage = document.querySelector('.entry-page')
 const navbar = document.querySelector('.navbar')
 const gamePlayCenterPanel = document.querySelector('.gameplay-center-panel')
 const resultBox = document.querySelector('.result-box')
+const infoPanel = document.querySelector('.info-panel')
+const achievementList = document.querySelector('.achievement-list')
 
 const nextButton = document.querySelector('.next-btn')
 const finishButton = document.querySelector('.finish-btn')
 const tryAgainButton = document.querySelector('.try-again-btn')
 const homeButton = document.querySelector('.home-btn')
+const closeButton = document.querySelector('.close-btn')
 
 const translateFromEl = document.querySelector(".translate-from-select")
 const translateToEl = document.querySelector(".translate-to-select")
@@ -31,17 +34,17 @@ fillConfiguration()
 showHeader()
 
 startButton.addEventListener('click', function() {
-    popupInfo.classList.add('active')
+    configurationPanel.classList.add('active')
     main.classList.add('active')
 });
 
 exitButton.addEventListener('click', function() {
-    popupInfo.classList.remove('active')
+    configurationPanel.classList.remove('active')
     main.classList.remove('active')
 });
 
 playButton.addEventListener('click', function() {
-    popupInfo.classList.remove('active')
+    configurationPanel.classList.remove('active')
     main.classList.remove('active')
 
 
@@ -77,7 +80,7 @@ finishButton.addEventListener('click', function() {
     }).then(r => r)
     gamePlayCenterPanel.style.display = "none"
     resultBox.style.display = "block"
-    resultScore.innerHTML = `You got ${correctlyAnswered} / ${configuration["numberOfSteps"]}`
+    resultScore.innerHTML = `You got ${correctlyAnswered}/${configuration["numberOfSteps"]}`
 
 })
 
@@ -99,19 +102,50 @@ tryAgainButton.addEventListener('click', function() {
     startGame()
 })
 
+closeButton.addEventListener('click', function() {
+    infoPanel.classList.remove('active')
+})
+
 function showHeader() {
     fetch("/api/authentication")
         .then(response => {
             return response.json()
         }).then(json => {
             if (json["isAuthenticated"]) {
-                navbar.innerHTML += `<a href="/">Info</a>`
+                navbar.innerHTML += `<a href="/#" onclick="showInfo()">Info</a>`
                 navbar.innerHTML += `<a href="/#" onclick="logout()">Logout</a>`
             } else {
                 navbar.innerHTML += `<a href="/login">Login</a>`
                 navbar.innerHTML += `<a href="/signup">Register</a>`
             }
         })
+}
+
+function showInfo() {
+    infoPanel.classList.add('active')
+    fetch("/api/games/statistics")
+        .then(response => {
+            return response.json()
+        }).then(json => {
+        document.querySelector('.correctly-answered').innerHTML
+            = `Correctly answered: ${json["correctlyAnswered"]}`
+        document.querySelector('.questions-answered').innerHTML
+            = `Questions answered: ${json["questionsAnswered"]}`
+        document.querySelector('.most-hits').innerHTML
+            = `Word with most hits: ${json["wordWithMostHits"]}`
+        document.querySelector('.most-misses').innerHTML
+            = `Word with most misses: ${json["wordWithMostMisses"]}`
+    })
+    fetch("/api/games/achievements")
+        .then(response => {
+            return response.json()
+        }).then(json => {
+        achievementList.innerHTML = ``
+            json["achievements"].forEach(achievement => {
+                achievementList.innerHTML +=
+                    `<div class="achievement" title="${achievement["description"]}">${achievement["name"]}</div>`
+            })
+    })
 }
 
 function logout() {

@@ -70,7 +70,7 @@ public class GameController {
   }
 
   @GetMapping("/achievements")
-  public List<AchievementDto> achievements() {
+  public AchievementsDto achievements() {
     return gameService.getAchievements(authenticationService.getAuthenticatedUser().get());
   }
 
