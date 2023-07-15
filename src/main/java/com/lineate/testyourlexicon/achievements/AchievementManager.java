@@ -19,7 +19,7 @@ public class AchievementManager {
 
   public void checkAchievements(Long userHash) {
     if (!authenticationService.isAuthenticated()) {
-      return;
+      throw new RuntimeException("Tried to update achievements on non-authenticated user");
     }
     User user = authenticationService.getAuthenticatedUser().get();
     achievements.forEach(achievement -> {

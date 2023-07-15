@@ -14,7 +14,6 @@ import com.lineate.testyourlexicon.util.GameUtil;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -178,9 +177,9 @@ public class GameService {
     return game;
   }
 
-  public List<AchievementDTO> getAchievements(User user) {
+  public List<AchievementDto> getAchievements(User user) {
     return user.getAchievements().stream()
-      .map(achievement -> AchievementDTO.builder()
+      .map(achievement -> AchievementDto.builder()
         .name(achievement.getName())
         .description(achievement.getDescription())
         .build())

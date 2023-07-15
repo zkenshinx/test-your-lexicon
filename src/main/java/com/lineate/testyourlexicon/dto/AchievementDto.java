@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AchievementDTO {
+public class AchievementDto {
 
   private String name;
   private String description;

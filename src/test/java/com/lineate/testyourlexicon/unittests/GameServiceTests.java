@@ -1,6 +1,7 @@
 package com.lineate.testyourlexicon.unittests;
 
 
+import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.dto.*;
 import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.*;
 
 public class GameServiceTests {
 
+  private AchievementManager achievementManager;
   private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
   private TranslationService translationService;
@@ -37,8 +39,9 @@ public class GameServiceTests {
     questionRepository = mock(QuestionRepository.class);
     gameRepository = mock(GameRepository.class);
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
-    gameService = new GameService(gameConfigurationRepository, translationService,
-      translationRepository, gameRepository, questionRepository);
+    achievementManager = mock(AchievementManager.class);
+    gameService = new GameService(achievementManager, gameConfigurationRepository,
+      translationService, translationRepository, gameRepository, questionRepository);
   }
 
   @Test
