@@ -3,6 +3,7 @@ package com.lineate.testyourlexicon.unittests;
 import com.lineate.testyourlexicon.achievements.AchievementManager;
 import com.lineate.testyourlexicon.config.TestRedisConfiguration;
 import com.lineate.testyourlexicon.repositories.*;
+import com.lineate.testyourlexicon.services.AuthenticationService;
 import com.lineate.testyourlexicon.services.GameService;
 import com.lineate.testyourlexicon.services.TranslationService;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.mock;
 public class GameServiceRedisTests {
 
 
+  private AuthenticationService authenticationService;
   private AchievementManager achievementManager;
   private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
@@ -40,9 +42,10 @@ public class GameServiceRedisTests {
     gameConfigurationRepository = mock(GameConfigurationRepository.class);
     userStatisticsRepository = mock(UserStatisticsRepository.class);
     achievementManager = mock(AchievementManager.class);
-    gameService = new GameService(achievementManager, gameConfigurationRepository,
-      translationService, translationRepository, gameRepository, questionRepository,
-      userStatisticsRepository, jedis);
+    authenticationService = mock(AuthenticationService.class);
+    gameService = new GameService(authenticationService, achievementManager,
+      gameConfigurationRepository, translationService, translationRepository, gameRepository,
+      questionRepository, userStatisticsRepository, jedis);
   }
 
   @Test

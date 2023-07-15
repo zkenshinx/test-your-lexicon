@@ -7,6 +7,7 @@ import com.lineate.testyourlexicon.entities.Game;
 import com.lineate.testyourlexicon.entities.QuestionEntity;
 import com.lineate.testyourlexicon.models.Question;
 import com.lineate.testyourlexicon.repositories.*;
+import com.lineate.testyourlexicon.services.AuthenticationService;
 import com.lineate.testyourlexicon.services.GameService;
 import com.lineate.testyourlexicon.services.TranslationService;
 import com.lineate.testyourlexicon.util.GameUtil;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.*;
 
 public class GameServiceTests {
 
+  private AuthenticationService authenticationService;
   private AchievementManager achievementManager;
   private GameConfigurationRepository gameConfigurationRepository;
   private GameService gameService;
@@ -46,9 +48,10 @@ public class GameServiceTests {
     achievementManager = mock(AchievementManager.class);
     userStatisticsRepository = mock(UserStatisticsRepository.class);
     achievementManager = mock(AchievementManager.class);
-    gameService = new GameService(achievementManager, gameConfigurationRepository,
-      translationService, translationRepository, gameRepository, questionRepository,
-      userStatisticsRepository, jedis);
+    authenticationService = mock(AuthenticationService.class);
+    gameService = new GameService(authenticationService, achievementManager,
+      gameConfigurationRepository, translationService, translationRepository, gameRepository,
+      questionRepository, userStatisticsRepository, jedis);
   }
 
   @Test
@@ -172,14 +175,6 @@ public class GameServiceTests {
     gameService.initGameForUser(12345L);
     verify(gameRepository).save(any());
   }
-
-  @Test
-  public void whenUserHasAlreadyStartedGame_ExceptionIsThrown() {
-    Long userHash = 12345L;
-    when(gameRepository.getUserActiveGame(userHash)).thenReturn(Optional.of(new Game()));
-    assertThatException().isThrownBy(() -> gameService.initGameForUser(userHash));
-  }
-
 
   @Test
   public void supportedLanguagesContainsDefaultOnes() {

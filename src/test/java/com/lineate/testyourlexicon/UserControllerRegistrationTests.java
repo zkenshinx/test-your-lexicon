@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerRegistrationTests {
 
-  private static final String REGISTRATION_URL = "/users";
+  private static final String REGISTRATION_URL = "/api/users";
 
   @Autowired
   private MockMvc mockMvc;
