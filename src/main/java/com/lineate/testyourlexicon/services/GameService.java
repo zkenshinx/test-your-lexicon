@@ -69,7 +69,6 @@ public class GameService {
   }
 
   public GameInitializedDto initGameForUser(Long userHash) {
-//    checkIfGameActiveForUser(userHash);
     Game game = new Game();
     game.setUserHash(userHash);
     game.setStepsLeft(userConfiguration(userHash).getNumberOfSteps());
