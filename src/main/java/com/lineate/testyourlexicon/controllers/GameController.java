@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/games")
+@RequestMapping("/api/games")
 @RequiredArgsConstructor
 public class GameController {
 
@@ -39,6 +39,13 @@ public class GameController {
                                             gameId);
   }
 
+  @GetMapping("/{gameId}/solution")
+  public CorrectAnswerDto answer(@PathVariable("gameId") Long gameId,
+                                 HttpServletRequest request) {
+    return gameService.getCorrectAnswer(authenticationService.getUserHash(request),
+      gameId);
+  }
+
   @PostMapping("/{gameId}/end")
   public GameEndDto endGame(@PathVariable("gameId") Long gameId,
                             HttpServletRequest request) {
@@ -63,7 +70,7 @@ public class GameController {
   }
 
   @GetMapping("/achievements")
-  public List<AchievementDto> achievements() {
+  public AchievementsDto achievements() {
     return gameService.getAchievements(authenticationService.getAuthenticatedUser().get());
   }
 

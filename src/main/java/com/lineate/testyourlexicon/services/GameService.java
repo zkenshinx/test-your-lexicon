@@ -27,6 +27,7 @@ import redis.clients.jedis.Jedis;
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
+  private final AuthenticationService authenticationService;
   private final AchievementManager achievementManager;
   private final GameConfigurationRepository gameConfigurationRepository;
   private final TranslationService translationService;
@@ -68,7 +69,6 @@ public class GameService {
   }
 
   public GameInitializedDto initGameForUser(Long userHash) {
-    checkIfGameActiveForUser(userHash);
     Game game = new Game();
     game.setUserHash(userHash);
     game.setStepsLeft(userConfiguration(userHash).getNumberOfSteps());
@@ -150,13 +150,9 @@ public class GameService {
                                    AnswerRequestDto answerRequestDto,
                                    long gameId) {
     Game game = validateGameForUser(userHash, gameId);
-    if (game.getStepsLeft() == 0) {
-      throw new GeneralMessageException("No more steps left for the game! finish the game!");
-    }
     // Check if game isn't timed out
     checkTimeout(gameId);
     QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
-
     // Get correct answer
     Long translationId = questionEntity.getTranslationId();
     String language = userConfiguration(userHash).getTranslateTo();
@@ -172,7 +168,6 @@ public class GameService {
     game.setCurrentQuestionId(null);
     gameRepository.save(game);
 
-    updateStatistics(userHash, translationId, guessed);
     log.info("User answered a step {'user_hash': {}, 'game_id': {}, 'question': {}}",
         userHash, game.getGameId(), questionEntity.getId());
     return AnswerResponseDto.builder()
@@ -192,25 +187,31 @@ public class GameService {
     int stepCount = userConfiguration(userHash).getNumberOfSteps();
     log.info("User ended his game {'user_hash': {}, 'game_id': {},}}",
         userHash, game.getGameId());
-    achievementManager.checkAchievements(userHash);
+    if (authenticationService.isAuthenticated()) {
+      achievementManager.checkAchievements(userHash);
+      updateStatistics(userHash, gameId);
+    }
     return GameEndDto.builder()
       .stepCount(stepCount)
       .correctlyAnswered(correctlyAnswered)
       .build();
   }
   
-  public void updateStatistics(Long userHash, Long translationId, boolean guessed) {
+  public void updateStatistics(Long userHash, Long gameId) {
     UserStatistics userStatistics = userStatisticsRepository
         .findById(userHash).orElseGet(() ->
           new UserStatistics(userHash)
         );
-    userStatistics.setQuestionsAnswered(userStatistics.getQuestionsAnswered() + 1);
-    if (guessed) {
-      userStatistics.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered() + 1);
-      userStatistics.hitWord(translationId);
-    } else {
-      userStatistics.missWord(translationId);
-    }
+    List<QuestionEntity> questionEntities = questionRepository.findAllByGameId(gameId);
+    questionEntities.forEach(questionEntity -> {
+      userStatistics.setQuestionsAnswered(userStatistics.getQuestionsAnswered() + 1);
+      if (questionEntity.getGuessed()) {
+        userStatistics.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered() + 1);
+        userStatistics.hitWord(questionEntity.getTranslationId());
+      } else {
+        userStatistics.missWord(questionEntity.getTranslationId());
+      }
+    });
     userStatisticsRepository.save(userStatistics);
   }
 
@@ -222,14 +223,22 @@ public class GameService {
     StatisticsDto statisticsDto = new StatisticsDto();
     statisticsDto.setQuestionsAnswered(userStatistics.getQuestionsAnswered());
     statisticsDto.setCorrectlyAnswered(userStatistics.getCorrectlyAnswered());
-    Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
+    if (userStatistics.getHits().isEmpty()) {
+      statisticsDto.setWordWithMostHits("None");
+    } else {
+      Long mostHitsId = Collections.max(userStatistics.getHits().entrySet(),
         Map.Entry.comparingByValue()).getKey();
-    Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
-        Map.Entry.comparingByValue()).getKey();
-    statisticsDto.setWordWithMostHits(
+      statisticsDto.setWordWithMostHits(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostHitsId, "english"));
-    statisticsDto.setWordWithMostMisses(
+    }
+    if (userStatistics.getMisses().isEmpty()) {
+      statisticsDto.setWordWithMostMisses("None");
+    } else {
+      Long mostMissesId = Collections.max(userStatistics.getMisses().entrySet(),
+        Map.Entry.comparingByValue()).getKey();
+      statisticsDto.setWordWithMostMisses(
         translationRepository.languageDefinitionGivenIdAndLanguage(mostMissesId, "english"));
+    }
     return statisticsDto;
   }
 
@@ -258,12 +267,32 @@ public class GameService {
     return game;
   }
 
-  public List<AchievementDto> getAchievements(User user) {
-    return user.getAchievements().stream()
+  public AchievementsDto getAchievements(User user) {
+    return new AchievementsDto(user.getAchievements().stream()
       .map(achievement -> AchievementDto.builder()
         .name(achievement.getName())
         .description(achievement.getDescription())
         .build())
-      .collect(Collectors.toList());
+      .collect(Collectors.toList()));
+  }
+
+  @Transactional
+  public CorrectAnswerDto getCorrectAnswer(Long userHash, long gameId) {
+    Game game = validateGameForUser(userHash, gameId);
+    QuestionEntity questionEntity = getQuestion(game.getCurrentQuestionId());
+
+    // Get correct answer
+    Long translationId = questionEntity.getTranslationId();
+    String language = userConfiguration(userHash).getTranslateTo();
+    String correctAnswer =
+      translationRepository.languageDefinitionGivenIdAndLanguage(translationId, language);
+
+    CorrectAnswerDto correctAnswerDto = new CorrectAnswerDto();
+    correctAnswerDto.setAnswer(correctAnswer);
+
+    game.setCurrentQuestionId(null);
+    gameRepository.save(game);
+
+    return correctAnswerDto;
   }
 }

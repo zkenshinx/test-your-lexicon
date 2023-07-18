@@ -1,0 +1,92 @@
+select {
+    font-size: 15px;
+    padding: 10px;
+    width: 50%;
+    border-radius: 3px;
+    border: 1px solid #acacac;
+    color: #181820;
+
+    appearance: none;
+
+    background: url('../img/dropdown_arrow.png');
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    background-position: right;
+    background-origin: content-box;
+}
+
+span {
+    width: 500px;
+    font-size: 16px;
+}
+
+input[type="number"] {
+    width: 55px;
+    font-size: 15px;
+}
+
+.popup-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    width: 500px;
+    background: #fff;
+    border-radius: 6px;
+    padding: 10px 25px;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: 0.5s ease;
+}
+
+.popup-info.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.popup-info h2 {
+    font-size: 50px;
+    text-align: center;
+    color: blue;
+    margin-bottom: 10px;
+}
+
+.popup-info .info {
+    display: inline-block;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    margin: 4px 0;
+}
+
+.popup-info .btn-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #999;
+    margin-top: 10px;
+    padding: 15px 0 7px;
+}
+
+.popup-info .btn-group .info-btn {
+    width: 130px;
+    height: 45px;
+    background: transparent;
+    border: 2px solid #3614e8;
+    outline: none;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #3614e8;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.popup-info .btn-group .info-btn:hover {
+    background: #3614e8;
+    color: #fff;
+}

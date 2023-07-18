@@ -6,9 +6,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GameInitializedDto {
+public class LoggedInDto {
 
-  @JsonProperty("gameId")
-  private Long gameId;
+  @JsonProperty("isAuthenticated")
+  boolean isLogged;
 
 }

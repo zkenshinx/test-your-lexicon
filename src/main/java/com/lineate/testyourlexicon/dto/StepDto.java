@@ -15,7 +15,7 @@ public class StepDto {
 
   @JsonProperty("question")
   Question question;
-  @JsonProperty("game_id")
+  @JsonProperty("gameId")
   private Long gameId;
 
 }

@@ -21,7 +21,7 @@ public class AuthorizationTests {
   @WithMockUser(roles = "USER")
   public void basicUserCannotAccessAdminPrivilegedEndpoint() throws Exception {
     mockMvc
-      .perform(get("/users"))
+      .perform(get("/api/users"))
       .andExpect(status().isForbidden());
   }
 
@@ -29,7 +29,7 @@ public class AuthorizationTests {
   @WithMockUser(roles = "ADMIN")
   public void adminCanAccessAdminPrivilegedEndpoint() throws Exception {
     mockMvc
-      .perform(get("/users"))
+      .perform(get("/api/users"))
       .andExpect(status().isOk());
   }
 }

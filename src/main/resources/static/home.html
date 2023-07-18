@@ -1,0 +1,111 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/game_start.css">
+    <link rel="stylesheet" href="css/home_styles.css">
+</head>
+<body>
+    <div class="entry-page">
+        <main class="main">
+            <header class="header">
+                <a href="#" class="logo">By K.K.</a>
+                <nav class="navbar">
+                </nav>
+            </header>
+            <section class="home">
+                <div class="home-content">
+                    <h1>Test your lexicon</h1>
+                    <p>
+                        Welcome to our language quiz website, where you can challenge your language skills and broaden your linguistic horizons. Whether you're a beginner or an advanced learner, we have a wide range of timed quizzes available in English, Georgian, Russian, and German.
+                    </p>
+                    <button class="start-btn">Start game</button>
+                </div>
+            </section>
+        </main>
+
+        <div class="popup-info configuration-panel">
+            <h2>Configuration</h2>
+            <div class="input-fields-container">
+                <div>
+                    <span class="language-span">Translate from: </span>
+                    <select class="translate-from-select">
+                    </select>
+                </div>
+                <br>
+                <div>
+                    <span class="language-span" style="padding-right: 19px">Translate to: </span>
+                    <select class="translate-to-select">
+                    </select>
+                </div>
+                <br>
+                <div>
+                    <span style="padding-right: 9px">Options count: </span>
+                    <input type="number" class="options-count-input" min="2" max="6">
+                </div>
+                <br>
+                <div>
+                    <span style="padding-right: 28px">Steps count: </span>
+                    <input type="number" class="steps-count-input" min="2" max="25">
+                </div>
+                <br>
+                <div>
+                    <span style="padding-right: 47px">Step time: </span>
+                    <input type="number" class="step-time-input" min="5" max="60">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="info-btn exit-btn">Exit Quiz</button>
+                <button class="info-btn play-btn">Play</button>
+            </div>
+        </div>
+        <div class="popup-info info-panel">
+            <h2>Statistics</h2>
+            <div class="info-text correctly-answered"></div>
+            <div class="info-text questions-answered"></div>
+            <div class="info-text most-hits"></div>
+            <div class="info-text most-misses"></div>
+            <h2 class="achievement-title">Achievements</h2>
+            <div class="achievement-list">
+            </div>
+            <div class="btn-group">
+                <button class="info-btn close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game" style="display: none">
+        <div class="gameplay-center-panel">
+            <div class="countdown">
+                <img src="img/countdown.svg">
+                <div class="timer"></div>
+            </div>
+            <div class="gameplay-header">
+                <div class="language-to-language">englihs</div>
+                <div class="score-shower">10</div>
+            </div>
+            <h2 class="question-text"></h2>
+            <div class="option-list">
+            </div>
+            <div class="gameplay-footer">
+                <span class="questions-num"></span>
+                <button class="next-btn footer-btn">Next</button>
+                <button class="finish-btn footer-btn" hidden="hidden">Finish</button>
+            </div>
+        </div>
+        <div class="result-box" style="display: none">
+            <h2>Results!</h2>
+            <h3 class="result-score"></h3>
+            <div class="result-footer">
+                <button class="try-again-btn footer-btn active">Try again</button>
+                <button class="home-btn footer-btn active">Home</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/home.js"></script>
+</body>
+</html>
