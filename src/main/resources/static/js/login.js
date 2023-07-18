@@ -19,6 +19,7 @@ loginButton.addEventListener("click", function () {
         // redirect to home page
         if (response.ok) {
             window.location.replace("/");
+            return;
         }
         if (!badCredentialsEl.classList.contains("message")) {
             badCredentialsEl.classList.add("message")
