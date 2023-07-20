@@ -4,6 +4,8 @@ REST API project where users can participate in a quiz consisting of multiple st
 Each step consists of selecting a correct translation for a word from some given number 
 of suggested words.
 
+![Screenshot](images/quiz-show.png)
+
 ## Tech Stack
 * Spring Framework, Boot, Web, Security, Actuator
 * Lombok
@@ -19,6 +21,14 @@ of suggested words.
 * Maven
 * Docker
 
+## Environment variables
+```
+DB_URL -> Postgres url
+DB_USER -> Postgres username
+DB_PASSWORD -> Postgres password
+REDIS_HOST -> Redis host name
+REDIS_PORT -> Redis port
+```
 ## Usage
 
 Build the app:
